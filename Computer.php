@@ -6,14 +6,15 @@
  * Object representing a Computer in PrintNode API
  *
  * @property-read int $id
- * @property string $name
- * @property string $inet
- * @property string $inet6
- * @property string $version
- * @property string $jre
- * @property object $systemInfo
- * @property boolean $acceptOfflinePrintJobs
- * @property DateTime $createTimestamp
+ * @property-read string $name
+ * @property-read string $inet
+ * @property-read string $inet6
+ * @property-read string $version
+ * @property-read string $jre
+ * @property-read object $systemInfo
+ * @property-read boolean $acceptOfflinePrintJobs
+ * @property-read DateTime $createTimestamp
+ * @property-read string $state
  */
 class PrintNode_Computer extends PrintNode_Entity
 {

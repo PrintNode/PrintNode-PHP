@@ -11,7 +11,9 @@
  * @property string $contentType
  * @property string $content
  * @property string $source
- * @property DateTime $createTimestamp
+ * @property-read int $filesize
+ * @property-read DateTime $createTimestamp
+ * @property-read string $state
  */
 class PrintNode_PrintJob extends PrintNode_Entity
 {
@@ -21,6 +23,7 @@ class PrintNode_PrintJob extends PrintNode_Entity
     protected $contentType;
     protected $content;
     protected $source;
+    protected $filesize;
     protected $createTimestamp;
     protected $state;
 
