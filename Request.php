@@ -18,6 +18,18 @@ class PrintNode_Request
     private $credentials;
 
     /**
+     * Offset query argument on GET requests
+     * @var int
+     */
+    private $offset = 0;
+
+    /**
+     * Limit query argument on GET requests
+     * @var mixed
+     */
+    private $limit = 10;
+
+    /**
      * Map entity names to API URLs
      * @var string[]
      */
@@ -154,8 +166,37 @@ class PrintNode_Request
     {
         return $this->curlExec(
             $this->curlInit(),
-            $endPointUrl
+            $this->applyOffsetLimit($endPointUrl)
         );
+    }
+
+    /**
+     * Apply offset and limit to a end point URL.
+     * @param mixed $endPointUrl
+     * @return string
+     */
+    private function applyOffsetLimit($endPointUrl)
+    {
+        $endPointUrlArray = parse_url($endPointUrl);
+
+        if (!isset($endPointUrlArray['query'])) {
+            $endPointUrlArray['query'] = null;
+        }
+
+        parse_str($endPointUrlArray['query'], $queryStringArray);
+
+        $queryStringArray['offset'] = $this->offset;
+        $queryStringArray['limit'] = min(max(1, $this->limit), 10);
+
+        $endPointUrlArray['query'] = http_build_query($queryStringArray, null, '&');
+
+        $endPointUrl = (isset($endPointUrlArray['scheme'])) ? "{$endPointUrlArray['scheme']}://" : '';
+        $endPointUrl.= (isset($endPointUrlArray['host'])) ? "{$endPointUrlArray['host']}" : '';
+        $endPointUrl.= (isset($endPointUrlArray['port'])) ? ":{$endPointUrlArray['port']}" : '';
+        $endPointUrl.= (isset($endPointUrlArray['path'])) ? "{$endPointUrlArray['path']}" : '';
+        $endPointUrl.= (isset($endPointUrlArray['query'])) ? "?{$endPointUrlArray['query']}" : '';
+
+        return $endPointUrl;
     }
 
     /**
@@ -185,9 +226,11 @@ class PrintNode_Request
      * @param PrintNode_Credentials $credentials
      * @param mixed $endPointUrls
      * @param mixed $methodNameEntityMap
+     * @param int $offset
+     * @param int $limit
      * @return PrintNode_Request
      */
-    public function __construct(PrintNode_Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array())
+    public function __construct(PrintNode_Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
             throw new RuntimeException('Function curl_init does not exist.');
@@ -202,6 +245,35 @@ class PrintNode_Request
         if (count($methodNameEntityMap)) {
             $this->methodNameEntityMap = $methodNameEntityMap;
         }
+
+        $this->setOffset($offset);
+        $this->setLimit($limit);
+    }
+
+    /**
+     * Set the offset for GET requests
+     * @param mixed $offset
+     */
+    public function setOffset($offset)
+    {
+        if (!ctype_digit($offset) && !is_int($offset)) {
+            throw new InvalidArgumentException('offset should be a number');
+        }
+
+        $this->offset = $offset;
+    }
+
+    /**
+     * Set the limit for GET requests
+     * @param mixed $limit
+     */
+    public function setLimit($limit)
+    {
+        if (!ctype_digit($limit) && !is_int($limit)) {
+            throw new InvalidArgumentException('limit should be a number');
+        }
+
+        $this->limit = $limit;
     }
 
     /**
