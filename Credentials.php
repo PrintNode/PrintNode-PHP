@@ -30,7 +30,7 @@ class PrintNode_Credentials
      */
     public function __toString()
     {
-        return $this->username. ':'. $this->password;
+        return $this->password . ':';
     }
 
     /**

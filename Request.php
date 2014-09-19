@@ -34,9 +34,9 @@ class PrintNode_Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'PrintNode_Computer' => 'https://app.printnode.com/api/computers',
-        'PrintNode_Printer' => 'https://app.printnode.com/api/printers',
-        'PrintNode_PrintJob' => 'https://app.printnode.com/api/printjobs',
+        'PrintNode_Computer' => 'https://api.printnode.com/computers',
+        'PrintNode_Printer' => 'https://api.printnode.com/printers',
+        'PrintNode_PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**
@@ -117,7 +117,6 @@ class PrintNode_Request
         curl_setopt($curlHandle, CURLOPT_VERBOSE, true);
         curl_setopt($curlHandle, CURLOPT_HEADER, true);
 
-        curl_setopt($curlHandle, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
         curl_setopt($curlHandle, CURLOPT_USERPWD, (string)$this->credentials);
 
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
@@ -304,7 +303,7 @@ class PrintNode_Request
             }
 
             $endPointUrl = sprintf(
-                '%s/%d.json',
+                '%s/%d',
                 $endPointUrl,
                 $arguments
             );
@@ -312,7 +311,7 @@ class PrintNode_Request
         } else {
 
             $endPointUrl = sprintf(
-                '%s.json',
+                '%s',
                 $endPointUrl
             );
         }
