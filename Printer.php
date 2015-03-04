@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Printer
  *
@@ -11,7 +13,7 @@
  * @property-read string $description
  * @property-read object $capabilities
  * @property-read boolean $default
- * @property-read DateTime $createTimestamp
+ * @property-read \DateTime $createTimestamp
  * @property-read string $state
  */
 class PrintNode_Printer extends PrintNode_Entity
@@ -28,7 +30,7 @@ class PrintNode_Printer extends PrintNode_Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'computer' => 'PrintNode_Computer'
+            'computer' => 'PrintNode\PrintNode_Computer'
         );
     }
 }

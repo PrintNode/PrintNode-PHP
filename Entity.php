@@ -1,5 +1,10 @@
 <?php
 
+namespace PrintNode;
+
+use DateTime;
+use stdClass;
+
 /**
  * PrintNode_Entity
  *
@@ -43,7 +48,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
         if (!($entity instanceof PrintNode_Entity)) {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'Object "%s" must extend PrintNode_Entity',
                     $entityName
@@ -59,7 +64,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
             if (!property_exists($entity, $propertyName)) {
 
-                throw new UnexpectedValueException(
+                throw new Exceptions\UnexpectedValueException(
                     sprintf(
                         'Property %s->%s does not exist',
                         get_class($entity),
@@ -118,7 +123,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -139,7 +144,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -162,7 +167,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!preg_match('/^(get|set)(.+)$/', $name, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     'method "%s" does not exist on entity "%s"',
                     $name,
@@ -177,7 +182,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
         if (!property_exists($this, $propertyName)) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     'Entity %s does not have a property named %s',
                     get_class($this),
@@ -212,7 +217,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
         if (!is_array($content)) {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'Received unexpected response from API\r\n%s',
                     $response->getContent()

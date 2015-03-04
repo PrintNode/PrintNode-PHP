@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Computer
  *
@@ -13,7 +15,7 @@
  * @property-read string $jre
  * @property-read object $systemInfo
  * @property-read boolean $acceptOfflinePrintJobs
- * @property-read DateTime $createTimestamp
+ * @property-read \DateTime $createTimestamp
  * @property-read string $state
  */
 class PrintNode_Computer extends PrintNode_Entity

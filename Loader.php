@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Loader
  *
@@ -26,7 +28,7 @@ abstract class PrintNode_Loader
     {
         if (substr($class, 0, 9) == 'PrintNode') {
 
-            include_once dirname(dirname(__FILE__)). '/'. str_replace('_', '/', $class). '.php';
+            include_once dirname(__FILE__). '/'. str_replace('PrintNode_', '', str_replace('\\', '/', substr($class, 10))). '.php';
             return $class;
         }
 

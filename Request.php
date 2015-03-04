@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Request
  *
@@ -34,9 +36,9 @@ class PrintNode_Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'PrintNode_Computer' => 'https://api.printnode.com/computers',
-        'PrintNode_Printer' => 'https://api.printnode.com/printers',
-        'PrintNode_PrintJob' => 'https://api.printnode.com/printjobs',
+        'PrintNode\PrintNode_Computer' => 'https://api.printnode.com/computers',
+        'PrintNode\PrintNode_Printer' => 'https://api.printnode.com/printers',
+        'PrintNode\PrintNode_PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**
@@ -44,10 +46,16 @@ class PrintNode_Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Computers' => 'PrintNode_Computer',
-        'Printers' => 'PrintNode_Printer',
-        'PrintJobs' => 'PrintNode_PrintJob',
+        'Computers' => 'PrintNode\PrintNode_Computer',
+        'Printers' => 'PrintNode\PrintNode_Printer',
+        'PrintJobs' => 'PrintNode\PrintNode_PrintJob',
     );
+
+    /**
+     * If PHP's CURL must be verbose or not
+     * @var bool
+     */
+    private $verbose = false;
 
     /**
      * Get API EndPoint URL from an entity name
@@ -58,7 +66,7 @@ class PrintNode_Request
     {
         if (!isset($this->endPointUrls[$entityName])) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     'Missing endPointUrl for entityName "%s"',
                     $entityName
@@ -78,7 +86,7 @@ class PrintNode_Request
     {
         if (!preg_match('/^get(.+)$/', $methodName, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     'Method %s::%s does not exist',
                     get_class($this),
@@ -89,7 +97,7 @@ class PrintNode_Request
 
         if (!isset($this->methodNameEntityMap[$matchesArray[1]])) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     '%s is missing an methodNameMap entry for %s',
                     get_class($this),
@@ -114,7 +122,7 @@ class PrintNode_Request
         curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
 
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlHandle, CURLOPT_VERBOSE, true);
+        curl_setopt($curlHandle, CURLOPT_VERBOSE, $this->verbose);
         curl_setopt($curlHandle, CURLOPT_HEADER, true);
 
         curl_setopt($curlHandle, CURLOPT_USERPWD, (string)$this->credentials);
@@ -138,7 +146,7 @@ class PrintNode_Request
 
         if (($response = @curl_exec($curlHandle)) === false) {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'cURL Error (%d): %s',
                     curl_errno($curlHandle),
@@ -232,7 +240,7 @@ class PrintNode_Request
     public function __construct(PrintNode_Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
-            throw new RuntimeException('Function curl_init does not exist.');
+            throw new Exceptions\RuntimeException('Function curl_init does not exist.');
         }
 
         $this->credentials = $credentials;
@@ -256,7 +264,7 @@ class PrintNode_Request
     public function setOffset($offset)
     {
         if (!ctype_digit($offset) && !is_int($offset)) {
-            throw new InvalidArgumentException('offset should be a number');
+            throw new Exceptions\InvalidArgumentException('offset should be a number');
         }
 
         $this->offset = $offset;
@@ -269,7 +277,7 @@ class PrintNode_Request
     public function setLimit($limit)
     {
         if (!ctype_digit($limit) && !is_int($limit)) {
-            throw new InvalidArgumentException('limit should be a number');
+            throw new Exceptions\InvalidArgumentException('limit should be a number');
         }
 
         $this->limit = $limit;
@@ -293,7 +301,7 @@ class PrintNode_Request
 
             if (!ctype_digit($arguments) && !is_int($arguments)) {
 
-                throw new InvalidArgumentException(
+                throw new Exceptions\InvalidArgumentException(
                     sprintf(
                         'Invalid argument type passed to %s. Expecting a number got %s',
                         $methodName,
@@ -320,7 +328,7 @@ class PrintNode_Request
 
         if ($response->getStatusCode() != '200') {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
                     $response->getStatusCode(),
@@ -360,5 +368,13 @@ class PrintNode_Request
     public function delete(PrintNode_Entity $entity)
     {
         return $this->curlSend($entity, 'DELETE');
+    }
+
+    /**
+     * @param boolean $verbose
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
     }
 }

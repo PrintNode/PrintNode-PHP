@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Credentials
  *
@@ -43,7 +45,7 @@ class PrintNode_Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -64,7 +66,7 @@ class PrintNode_Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),

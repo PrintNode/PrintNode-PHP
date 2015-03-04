@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 interface PrintNode_EntityInterface
 {
     /**

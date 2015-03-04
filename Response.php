@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Response
  *
@@ -34,11 +36,11 @@ class PrintNode_Response
     private function getStatus()
     {
         if (!($statusArray = preg_grep('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $this->headers))) {
-            throw new RuntimeException('Could not determine HTTP status from API response');
+            throw new Exceptions\RuntimeException('Could not determine HTTP status from API response');
         }
 
         if (!preg_match('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $statusArray[0], $matchesArray)) {
-            throw new RuntimeException('Could not determine HTTP status from API response');
+            throw new Exceptions\RuntimeException('Could not determine HTTP status from API response');
         }
 
         return array(
