@@ -1,10 +1,7 @@
 <?php
 
-// Include the PrintNode API. You may also use require here.
-include 'Loader.php';
-
-// Register the PrintNode autoloader.
-PrintNode\Loader::init();
+// Include composer's autoloader
+require 'vendor/autoload.php';
 
 // Rest of my code below here
 $credentials = new PrintNode\Credentials(
