@@ -1,12 +1,12 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entities;
 
-interface PrintNode_EntityInterface
+interface EntityInterface
 {
     /**
      * Return an array of properties that
-     * are foreign keys and relate to other PrintNode_Entity
+     * are foreign keys and relate to other Entity
      * objects
      * @param void
      * @return string[]

@@ -7,7 +7,7 @@ namespace PrintNode;
  *
  * HTTP response object.
  */
-class PrintNode_Response
+class Response
 {
     /**
      * Original Request URL
@@ -54,7 +54,7 @@ class PrintNode_Response
      * @param mixed $url
      * @param mixed $content
      * @param mixed $headers
-     * @return PrintNode_Response
+     * @return Response
      */
     public function __construct($url, $content, array $headers)
     {

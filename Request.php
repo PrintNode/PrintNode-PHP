@@ -7,15 +7,15 @@ namespace PrintNode;
  *
  * HTTP request object.
  *
- * @method PrintNode_Computer[] getComputers() getComputers(int $computerId)
- * @method PrintNode_Printer[] getPrinters() getPrinters(int $printerId)
- * @method PrintNode_PrintJob[] getPrintJobs() getPrintJobs(int $printJobId)
+ * @method Entities\Computer[] getComputers() getComputers(int $computerId = null)
+ * @method Entities\Printer[] getPrinters() getPrinters(int $printerId = null)
+ * @method Entities\PrintJob[] getPrintJobs() getPrintJobs(int $printJobId = null)
  */
-class PrintNode_Request
+class Request
 {
     /**
      * Credentials to use when communicating with API
-     * @var PrintNode_Credentials
+     * @var Credentials
      */
     private $credentials;
 
@@ -36,9 +36,9 @@ class PrintNode_Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'PrintNode\PrintNode_Computer' => 'https://api.printnode.com/computers',
-        'PrintNode\PrintNode_Printer' => 'https://api.printnode.com/printers',
-        'PrintNode\PrintNode_PrintJob' => 'https://api.printnode.com/printjobs',
+        'PrintNode\Entities\Computer' => 'https://api.printnode.com/computers',
+        'PrintNode\Entities\Printer' => 'https://api.printnode.com/printers',
+        'PrintNode\Entities\PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**
@@ -46,9 +46,9 @@ class PrintNode_Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Computers' => 'PrintNode\PrintNode_Computer',
-        'Printers' => 'PrintNode\PrintNode_Printer',
-        'PrintJobs' => 'PrintNode\PrintNode_PrintJob',
+        'Computers' => 'PrintNode\Entities\Computer',
+        'Printers' => 'PrintNode\Entities\Printer',
+        'PrintJobs' => 'PrintNode\Entities\PrintJob',
     );
 
     /**
@@ -161,7 +161,7 @@ class PrintNode_Request
 
         $headers = explode("\r\n", array_pop($response_parts));
 
-        return new PrintNode_Response($endPointUrl, $content, $headers);
+        return new Response($endPointUrl, $content, $headers);
     }
 
     /**
@@ -208,11 +208,11 @@ class PrintNode_Request
 
     /**
      * Make a POST/PUT/DELETE request using cURL
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @param mixed $httpMethod
      * @return PrintNode_Response
      */
-    private function curlSend(PrintNode_Entity $entity, $httpMethod)
+    private function curlSend(Entities\BaseEntity $entity, $httpMethod)
     {
         $curlHandle = $this->curlInit();
 
@@ -230,14 +230,14 @@ class PrintNode_Request
 
     /**
      * Constructor
-     * @param PrintNode_Credentials $credentials
+     * @param Credentials $credentials
      * @param mixed $endPointUrls
      * @param mixed $methodNameEntityMap
      * @param int $offset
      * @param int $limit
      * @return PrintNode_Request
      */
-    public function __construct(PrintNode_Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
+    public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
             throw new Exceptions\RuntimeException('Function curl_init does not exist.');
@@ -287,7 +287,7 @@ class PrintNode_Request
      * Map method names getComputers, getPrinters and getPrintJobs to entities
      * @param mixed $methodName
      * @param mixed $arguments
-     * @return PrintNode_Entity[]
+     * @return Entities\BaseEntity[]
      */
     public function __call($methodName, $arguments)
     {
@@ -337,35 +337,35 @@ class PrintNode_Request
             );
         }
 
-        return PrintNode_Entity::makeFromResponse($entityName, $response);
+        return Entities\BaseEntity::makeFromResponse($entityName, $response);
     }
 
     /**
      * POST (create) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function post(PrintNode_Entity $entity)
+    public function post(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'POST');
     }
 
     /**
      * PUT (update) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function put(PrintNode_Entity $entity)
+    public function put(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'PUT');
     }
 
     /**
      * DELETE (delete) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function delete(PrintNode_Entity $entity)
+    public function delete(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'DELETE');
     }

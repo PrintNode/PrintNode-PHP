@@ -25,15 +25,15 @@ To include all the PrintNode PHP API classes in your own code, all you need to d
     include 'PrintNode/Loader.php';
  
     // Register the PrintNode autoloader.
-    PrintNode_Loader::init();
+    PrintNode\Loader::init();
  
     // Rest of my code below here
   
   
 Step 5: Open a connection to PrintNode
-You first need to establish a connection to PrintNode. To do this you will need an instance of PrintNode_Credentials populated with your PrintNode API Key username and password.
+You first need to establish a connection to PrintNode. To do this you will need an instance of PrintNode\Credentials populated with your PrintNode API Key username and password.
 
-    $credentials = new PrintNode_Credentials(
+    $credentials = new PrintNode\Credentials(
         'myApiKey.123',
         '123a456b7cd89efab89cd0efa12bcd3e45fab678'
     );
@@ -42,9 +42,9 @@ Hint: Your API username is in the format description.integer, where description 
 
 
 Step 6: Get a list of computers, printers or printjobs which are available.
-To get a list of computers, printers or printjobs, create a new PrintNode_Request object, passing it your credentials as the argument to it's constructor.
+To get a list of computers, printers or printjobs, create a new PrintNode\Request object, passing it your credentials as the argument to it's constructor.
 
-    $request = new PrintNode_Request($credentials)
+    $request = new PrintNode\Request($credentials)
 
 Hint: Before you can get a list of computers or printers, you must have successfully connected using the PrintNode Client software. If you have not yet connected with the client software you will not receive any results from the API.
 
@@ -54,15 +54,15 @@ Call the getComputers, getPrinters() or getPrintJobs() method on the object:
     $printers = $request->getPrinters(); 
     $printJobs = $request->getPrintJobs();
   
-Hint: The return value from these methods is always an array containing 0 or more instances of PrintNode_Computer, PrintNode_Printer or PrintNode_PrintJob depending on the method called. You can iterate over this array however you please, for example you might use a while or foreach loop.
+Hint: The return value from these methods is always an array containing 0 or more instances of PrintNode\Entities\Computer, PrintNode\Entities\Printer or PrintNode\Entities\PrintJob depending on the method called. You can iterate over this array however you please, for example you might use a while or foreach loop.
 
 
 Step 7: Send a PrintJob to Printnode.
 PrintNode currently only accepts PDF documents. You can make your own PDFs or your can download one of our sample files from here.
 
-To print something, you need to create a new instance of PrintNode_PrintJob:
+To print something, you need to create a new instance of PrintNode\PrintJob:
 
-    $printJob = new PrintNode_PrintJob();
+    $printJob = new PrintNode\PrintJob();
   
 You can then populate this object with the information about the print-job and add the base64-encoded content of, or the URI to your PDF. To do this use the properties as defined on the object. In this example, we're going to print a a base64-encoded PDF named invoice.pdf:
 
@@ -77,7 +77,7 @@ Once you have populated the object, all that's left to do is submit it:
 
     $response = $request->post($printJob);
 
-The response returned from the post method is an instance of PrintNode_Response. It contains methods for retrieving the response headers, body and HTTP status-code and message.
+The response returned from the post method is an instance of PrintNode\Response. It contains methods for retrieving the response headers, body and HTTP status-code and message.
 
     // Returns an array contain the keys 'code' and 'message'
     $status = $response->getStatus();

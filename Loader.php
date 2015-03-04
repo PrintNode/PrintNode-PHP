@@ -7,7 +7,7 @@ namespace PrintNode;
  *
  * Zend / SPL autoloader for PHP5.
  */
-abstract class PrintNode_Loader
+abstract class Loader
 {
     /**
      * Register autoLoad method with the SPL autoloader
@@ -26,9 +26,9 @@ abstract class PrintNode_Loader
      */
     public static function autoLoad($class)
     {
-        if (substr($class, 0, 9) == 'PrintNode') {
+        if (substr($class, 0, 10) == 'PrintNode\\') {
 
-            include_once dirname(__FILE__). '/'. str_replace('PrintNode_', '', str_replace('\\', '/', substr($class, 10))). '.php';
+            include_once dirname(__FILE__). '/'. str_replace('\\', '/', substr($class, 10)). '.php';
             return $class;
         }
 

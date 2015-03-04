@@ -8,7 +8,7 @@ namespace PrintNode;
  * Credential store used by PrintNode_Request
  * when communicating with API server.
  */
-class PrintNode_Credentials
+class Credentials
 {
     private $username;
     private $password;
@@ -17,7 +17,7 @@ class PrintNode_Credentials
      * Constructor
      * @param mixed $username
      * @param mixed $password
-     * @return PrintNode_Credentials
+     * @return Credentials
      */
     public function __construct($username, $password)
     {
