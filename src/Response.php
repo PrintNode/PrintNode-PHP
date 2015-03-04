@@ -1,11 +1,13 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Response
  *
  * HTTP response object.
  */
-class PrintNode_Response
+class Response
 {
     /**
      * Original Request URL
@@ -34,11 +36,11 @@ class PrintNode_Response
     private function getStatus()
     {
         if (!($statusArray = preg_grep('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $this->headers))) {
-            throw new RuntimeException('Could not determine HTTP status from API response');
+            throw new Exceptions\RuntimeException('Could not determine HTTP status from API response');
         }
 
         if (!preg_match('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $statusArray[0], $matchesArray)) {
-            throw new RuntimeException('Could not determine HTTP status from API response');
+            throw new Exceptions\RuntimeException('Could not determine HTTP status from API response');
         }
 
         return array(
@@ -52,7 +54,7 @@ class PrintNode_Response
      * @param mixed $url
      * @param mixed $content
      * @param mixed $headers
-     * @return PrintNode_Response
+     * @return Response
      */
     public function __construct($url, $content, array $headers)
     {

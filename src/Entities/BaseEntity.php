@@ -1,11 +1,21 @@
 <?php
 
+namespace PrintNode\Entities;
+
+use DateTime;
+use stdClass;
+use PrintNode\Exceptions\RuntimeException;
+use PrintNode\Exceptions\UnexpectedValueException;
+use PrintNode\Exceptions\InvalidArgumentException;
+use PrintNode\Exceptions\BadMethodCallException;
+use PrintNode\Response;
+
 /**
- * PrintNode_Entity
+ * Entity
  *
  * Base class for entity objects.
  */
-abstract class PrintNode_Entity implements PrintNode_EntityInterface
+abstract class BaseEntity implements EntityInterface
 {
     /**
      * Recursively cast an object into an array.
@@ -35,17 +45,17 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
      * Map array of data to an entity
      * @param mixed $entityName
      * @param mixed $data
-     * @return PrintNode_Entity
+     * @return BaseEntity
      */
     private static function mapDataToEntity($entityName, stdClass $data)
     {
         $entity = new $entityName();
 
-        if (!($entity instanceof PrintNode_Entity)) {
+        if (!($entity instanceof BaseEntity)) {
 
             throw new RuntimeException(
                 sprintf(
-                    'Object "%s" must extend PrintNode_Entity',
+                    'Object "%s" must extend Entity',
                     $entityName
                 )
             );
@@ -203,10 +213,10 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     /**
      * Make an array of specified entity from a Response
      * @param mixed $entityName
-     * @param PrintNode_Response $response
-     * @return PrintNode_Entity[]
+     * @param Response $response
+     * @return BaseEntity[]
      */
-    public static function makeFromResponse($entityName, PrintNode_Response $response)
+    public static function makeFromResponse($entityName, Response $response)
     {
         $content = json_decode($response->getContent());
 

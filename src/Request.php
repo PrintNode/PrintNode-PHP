@@ -1,19 +1,21 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Request
  *
  * HTTP request object.
  *
- * @method PrintNode_Computer[] getComputers() getComputers(int $computerId)
- * @method PrintNode_Printer[] getPrinters() getPrinters(int $printerId)
- * @method PrintNode_PrintJob[] getPrintJobs() getPrintJobs(int $printJobId)
+ * @method Entities\Computer[] getComputers() getComputers(int $computerId = null)
+ * @method Entities\Printer[] getPrinters() getPrinters(int $printerId = null)
+ * @method Entities\PrintJob[] getPrintJobs() getPrintJobs(int $printJobId = null)
  */
-class PrintNode_Request
+class Request
 {
     /**
      * Credentials to use when communicating with API
-     * @var PrintNode_Credentials
+     * @var Credentials
      */
     private $credentials;
 
@@ -34,9 +36,9 @@ class PrintNode_Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'PrintNode_Computer' => 'https://api.printnode.com/computers',
-        'PrintNode_Printer' => 'https://api.printnode.com/printers',
-        'PrintNode_PrintJob' => 'https://api.printnode.com/printjobs',
+        'PrintNode\Entities\Computer' => 'https://api.printnode.com/computers',
+        'PrintNode\Entities\Printer' => 'https://api.printnode.com/printers',
+        'PrintNode\Entities\PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**
@@ -44,10 +46,16 @@ class PrintNode_Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Computers' => 'PrintNode_Computer',
-        'Printers' => 'PrintNode_Printer',
-        'PrintJobs' => 'PrintNode_PrintJob',
+        'Computers' => 'PrintNode\Entities\Computer',
+        'Printers' => 'PrintNode\Entities\Printer',
+        'PrintJobs' => 'PrintNode\Entities\PrintJob',
     );
+
+    /**
+     * If PHP's CURL must be verbose or not
+     * @var bool
+     */
+    private $verbose = false;
 
     /**
      * Get API EndPoint URL from an entity name
@@ -58,7 +66,7 @@ class PrintNode_Request
     {
         if (!isset($this->endPointUrls[$entityName])) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     'Missing endPointUrl for entityName "%s"',
                     $entityName
@@ -78,7 +86,7 @@ class PrintNode_Request
     {
         if (!preg_match('/^get(.+)$/', $methodName, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     'Method %s::%s does not exist',
                     get_class($this),
@@ -89,7 +97,7 @@ class PrintNode_Request
 
         if (!isset($this->methodNameEntityMap[$matchesArray[1]])) {
 
-            throw new BadMethodCallException(
+            throw new Exceptions\BadMethodCallException(
                 sprintf(
                     '%s is missing an methodNameMap entry for %s',
                     get_class($this),
@@ -114,7 +122,7 @@ class PrintNode_Request
         curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
 
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlHandle, CURLOPT_VERBOSE, true);
+        curl_setopt($curlHandle, CURLOPT_VERBOSE, $this->verbose);
         curl_setopt($curlHandle, CURLOPT_HEADER, true);
 
         curl_setopt($curlHandle, CURLOPT_USERPWD, (string)$this->credentials);
@@ -138,7 +146,7 @@ class PrintNode_Request
 
         if (($response = @curl_exec($curlHandle)) === false) {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'cURL Error (%d): %s',
                     curl_errno($curlHandle),
@@ -153,7 +161,7 @@ class PrintNode_Request
 
         $headers = explode("\r\n", array_pop($response_parts));
 
-        return new PrintNode_Response($endPointUrl, $content, $headers);
+        return new Response($endPointUrl, $content, $headers);
     }
 
     /**
@@ -200,11 +208,11 @@ class PrintNode_Request
 
     /**
      * Make a POST/PUT/DELETE request using cURL
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @param mixed $httpMethod
      * @return PrintNode_Response
      */
-    private function curlSend(PrintNode_Entity $entity, $httpMethod)
+    private function curlSend(Entities\BaseEntity $entity, $httpMethod)
     {
         $curlHandle = $this->curlInit();
 
@@ -222,17 +230,17 @@ class PrintNode_Request
 
     /**
      * Constructor
-     * @param PrintNode_Credentials $credentials
+     * @param Credentials $credentials
      * @param mixed $endPointUrls
      * @param mixed $methodNameEntityMap
      * @param int $offset
      * @param int $limit
      * @return PrintNode_Request
      */
-    public function __construct(PrintNode_Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
+    public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
-            throw new RuntimeException('Function curl_init does not exist.');
+            throw new Exceptions\RuntimeException('Function curl_init does not exist.');
         }
 
         $this->credentials = $credentials;
@@ -256,7 +264,7 @@ class PrintNode_Request
     public function setOffset($offset)
     {
         if (!ctype_digit($offset) && !is_int($offset)) {
-            throw new InvalidArgumentException('offset should be a number');
+            throw new Exceptions\InvalidArgumentException('offset should be a number');
         }
 
         $this->offset = $offset;
@@ -269,7 +277,7 @@ class PrintNode_Request
     public function setLimit($limit)
     {
         if (!ctype_digit($limit) && !is_int($limit)) {
-            throw new InvalidArgumentException('limit should be a number');
+            throw new Exceptions\InvalidArgumentException('limit should be a number');
         }
 
         $this->limit = $limit;
@@ -279,7 +287,7 @@ class PrintNode_Request
      * Map method names getComputers, getPrinters and getPrintJobs to entities
      * @param mixed $methodName
      * @param mixed $arguments
-     * @return PrintNode_Entity[]
+     * @return Entities\BaseEntity[]
      */
     public function __call($methodName, $arguments)
     {
@@ -293,7 +301,7 @@ class PrintNode_Request
 
             if (!ctype_digit($arguments) && !is_int($arguments)) {
 
-                throw new InvalidArgumentException(
+                throw new Exceptions\InvalidArgumentException(
                     sprintf(
                         'Invalid argument type passed to %s. Expecting a number got %s',
                         $methodName,
@@ -320,7 +328,7 @@ class PrintNode_Request
 
         if ($response->getStatusCode() != '200') {
 
-            throw new RuntimeException(
+            throw new Exceptions\RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
                     $response->getStatusCode(),
@@ -329,36 +337,44 @@ class PrintNode_Request
             );
         }
 
-        return PrintNode_Entity::makeFromResponse($entityName, $response);
+        return Entities\BaseEntity::makeFromResponse($entityName, $response);
     }
 
     /**
      * POST (create) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function post(PrintNode_Entity $entity)
+    public function post(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'POST');
     }
 
     /**
      * PUT (update) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function put(PrintNode_Entity $entity)
+    public function put(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'PUT');
     }
 
     /**
      * DELETE (delete) the specified entity
-     * @param PrintNode_Entity $entity
+     * @param Entities\BaseEntity $entity
      * @return PrintNode_Response
      */
-    public function delete(PrintNode_Entity $entity)
+    public function delete(Entities\BaseEntity $entity)
     {
         return $this->curlSend($entity, 'DELETE');
+    }
+
+    /**
+     * @param boolean $verbose
+     */
+    public function setVerbose($verbose)
+    {
+        $this->verbose = $verbose;
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
+namespace PrintNode\Entities;
+
 /**
- * PrintNode_Computer
+ * Computer
  *
  * Object representing a Computer in PrintNode API
  *
@@ -13,10 +15,10 @@
  * @property-read string $jre
  * @property-read object $systemInfo
  * @property-read boolean $acceptOfflinePrintJobs
- * @property-read DateTime $createTimestamp
+ * @property-read \DateTime $createTimestamp
  * @property-read string $state
  */
-class PrintNode_Computer extends PrintNode_Entity
+class Computer extends BaseEntity
 {
     protected $id;
     protected $name;

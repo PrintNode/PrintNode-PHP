@@ -1,12 +1,14 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Credentials
  *
  * Credential store used by PrintNode_Request
  * when communicating with API server.
  */
-class PrintNode_Credentials
+class Credentials
 {
     private $username;
     private $password;
@@ -15,7 +17,7 @@ class PrintNode_Credentials
      * Constructor
      * @param mixed $username
      * @param mixed $password
-     * @return PrintNode_Credentials
+     * @return Credentials
      */
     public function __construct($username, $password)
     {
@@ -43,7 +45,7 @@ class PrintNode_Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -64,7 +66,7 @@ class PrintNode_Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new Exceptions\InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
