@@ -1,10 +1,11 @@
 PrintNode-PHP
 =============
+Connect any printer to your application with our PrintNode Client and easy to use JSON API. See more information at [printnode.com](http://www.printnode.com)
 
-Connect any printer to your application with our PrintNode Client and easy to use JSON API. 
+## This fork
+This fork of PrintNode-PHP adds namespacing and [Composer](https://getcomposer.org) support. Provided by [Casper Bakker](https://github.com/cbakker) until this is added to the main PrintNode PHP client.
 
-www.printnode.com
-
+## Quick start guide
 This quick start guide covers using the PHP API library. It shows how to find which Computers and Printers you have available for printing and how you can submit PrintJobs using the provided PHP API libraries.
 
 Step 1: Sign Up
