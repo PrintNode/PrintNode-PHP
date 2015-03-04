@@ -26,6 +26,7 @@ class PrintNode_PrintJob extends PrintNode_Entity
     protected $filesize;
     protected $createTimestamp;
     protected $state;
+    protected $expireAt;
 
     public function foreignKeyEntityMap()
     {
