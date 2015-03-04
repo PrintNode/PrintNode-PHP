@@ -28,6 +28,7 @@ class PrintJob extends BaseEntity
     protected $filesize;
     protected $createTimestamp;
     protected $state;
+    protected $expireAt;
 
     public function foreignKeyEntityMap()
     {
