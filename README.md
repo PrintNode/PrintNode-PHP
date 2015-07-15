@@ -7,28 +7,33 @@ www.printnode.com
 
 This quick start guide covers using the PHP API library. It shows how to find which Computers and Printers you have available for printing and how you can submit PrintJobs using the provided PHP API libraries.
 
-Step 1: Sign Up
+## Step 1: Sign Up
 Before you can use the API, you will need to sign up to PrintNode account, and make a new API key. To help get you started, you will get 50 free prints when you sign up.
 
-Step 2: Add a computer and printer
+## Step 2: Add a computer and printer
 To have somewhere to print to you need to download and install the PrintNode desktop client on a computer with some printers. You can download the PrintNode Client installer here. It should be intuitive to setup but for more detailed instructions please see here.
 
-Step 3: Download the PHP Library
-You can download the client from our Github account. If you have a git client installed locally, you can clone our repository from the Github website. Alternatively, you can also download archives of the files. You can view our Github account by clicking here.
+## Step 3: Install library
 
-Step 4: Include the PHP Library
-The PrintNode PHP API is compatible with a PHP 5.2.0 and above. It comes with it's own spl_autoload_register compatible autoloader which makes using the API in your own code very simple. The only additional requirement for using the PrintNode PHP API is the PHP cURL extension. For instructions on installing the PHP cURL extension, please see your Operating System's documentation.
+### Download the PHP Library
+You can download the client from our Github account. If you have a git client installed locally, you can clone our repository from the Github website. Alternatively, you can also download archives of the files.
 
-To include all the PrintNode PHP API classes in your own code, all you need to do is include/require the Loader.php in your code:
+### Install via composer
+
+```bash
+composer require linkorb/printnode-php:dev-master
+```
+
+## Step 4: Include the autoloader
+The PrintNode PHP API is compatible with a PHP 5.3.2 and above. The only additional requirement for using the PrintNode PHP API is the PHP cURL extension. For instructions on installing the PHP cURL extension, please see your Operating System's documentation.
+
+To include all the PrintNode PHP API classes in your own code, all you need to do is include/require the autoload.php in your code:
 
     // Include the PrintNode API. You may also use require here.
-    include 'PrintNode/Loader.php';
- 
-    // Register the PrintNode autoloader.
-    PrintNode\Loader::init();
+    include 'vendor/autoload.php';
  
     // Rest of my code below here
-  
+
   
 Step 5: Open a connection to PrintNode
 You first need to establish a connection to PrintNode. To do this you will need an instance of PrintNode\Credentials populated with your PrintNode API Key username and password.
@@ -93,3 +98,4 @@ The response returned from the post method is an instance of PrintNode\Response.
  
     // Return the response body.
     $content = $response->getContent();
+
