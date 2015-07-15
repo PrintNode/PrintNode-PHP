@@ -1,11 +1,13 @@
 <?php
 
+namespace PrintNode;
+
 /**
- * PrintNode_Loader
+ * Loader
  *
  * Zend / SPL autoloader for PHP5.
  */
-abstract class PrintNode_Loader
+abstract class Loader
 {
     /**
      * Register autoLoad method with the SPL autoloader

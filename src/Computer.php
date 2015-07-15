@@ -1,5 +1,7 @@
 <?php
 
+namespace PrintNode;
+
 /**
  * PrintNode_Computer
  *
@@ -16,7 +18,7 @@
  * @property-read DateTime $createTimestamp
  * @property-read string $state
  */
-class PrintNode_Computer extends PrintNode_Entity
+class Computer extends Entity
 {
     protected $id;
     protected $name;
