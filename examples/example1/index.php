@@ -25,7 +25,7 @@ $credentials = new PrintNode\Credentials(
 // To get a list of computers, printers or printjobs, create a new PrintNode\Request 
 // object, passing it your credentials as the argument to it's constructor.
 
-$request = new PrintNode\Request($credentials)
+$request = new PrintNode\Request($credentials);
 
 // Hint: Before you can get a list of computers or printers, you must have successfully 
 // connected using the PrintNode Client software. If you have not yet connected with 

@@ -45,7 +45,7 @@ abstract class Entity implements EntityInterface
 
         if (!($entity instanceof Entity)) {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
                     'Object "%s" must extend Entity',
                     $entityName
@@ -61,7 +61,7 @@ abstract class Entity implements EntityInterface
 
             if (!property_exists($entity, $propertyName)) {
 
-                throw new UnexpectedValueException(
+                throw new \UnexpectedValueException(
                     sprintf(
                         'Property %s->%s does not exist',
                         get_class($entity),
@@ -120,7 +120,7 @@ abstract class Entity implements EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -141,7 +141,7 @@ abstract class Entity implements EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -164,7 +164,7 @@ abstract class Entity implements EntityInterface
     {
         if (!preg_match('/^(get|set)(.+)$/', $name, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     'method "%s" does not exist on entity "%s"',
                     $name,
@@ -179,7 +179,7 @@ abstract class Entity implements EntityInterface
 
         if (!property_exists($this, $propertyName)) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     'Entity %s does not have a property named %s',
                     get_class($this),
@@ -214,7 +214,7 @@ abstract class Entity implements EntityInterface
 
         if (!is_array($content)) {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
                     'Received unexpected response from API\r\n%s',
                     $response->getContent()

@@ -45,7 +45,7 @@ class Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -66,7 +66,7 @@ class Credentials
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),

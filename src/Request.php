@@ -60,7 +60,7 @@ class Request
     {
         if (!isset($this->endPointUrls[$entityName])) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Missing endPointUrl for entityName "%s"',
                     $entityName
@@ -80,7 +80,7 @@ class Request
     {
         if (!preg_match('/^get(.+)$/', $methodName, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     'Method %s::%s does not exist',
                     get_class($this),
@@ -91,7 +91,7 @@ class Request
 
         if (!isset($this->methodNameEntityMap[$matchesArray[1]])) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     '%s is missing an methodNameMap entry for %s',
                     get_class($this),
@@ -140,7 +140,7 @@ class Request
 
         if (($response = @curl_exec($curlHandle)) === false) {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
                     'cURL Error (%d): %s',
                     curl_errno($curlHandle),
@@ -234,7 +234,7 @@ class Request
     public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
-            throw new RuntimeException('Function curl_init does not exist.');
+            throw new \RuntimeException('Function curl_init does not exist.');
         }
 
         $this->credentials = $credentials;
@@ -258,7 +258,7 @@ class Request
     public function setOffset($offset)
     {
         if (!ctype_digit($offset) && !is_int($offset)) {
-            throw new InvalidArgumentException('offset should be a number');
+            throw new \InvalidArgumentException('offset should be a number');
         }
 
         $this->offset = $offset;
@@ -271,7 +271,7 @@ class Request
     public function setLimit($limit)
     {
         if (!ctype_digit($limit) && !is_int($limit)) {
-            throw new InvalidArgumentException('limit should be a number');
+            throw new \InvalidArgumentException('limit should be a number');
         }
 
         $this->limit = $limit;
@@ -322,7 +322,7 @@ class Request
 
         if ($response->getStatusCode() != '200') {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
                     $response->getStatusCode(),
