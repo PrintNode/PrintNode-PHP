@@ -6,6 +6,6 @@
     },
     "repositories": [{
         "type": "vcs",
-        "url": "/private/var/www/opensource/igormukhingmailcom/PrintNode-PHP"
+        "url": "https://github.com/linkorb/PrintNode-PHP"
     }]
 }
