@@ -1,12 +1,14 @@
 <?php
 
+namespace PrintNode;
+
 /**
- * PrintNode_PrintJob
+ * PrintJob
  *
  * Object representing a PrintJob in PrintNode API
  *
  * @property-read int $id
- * @property PrintNode_Printer $printer
+ * @property Printer $printer
  * @property string $title
  * @property string $contentType
  * @property string $content
@@ -15,7 +17,7 @@
  * @property-read DateTime $createTimestamp
  * @property-read string $state
  */
-class PrintNode_PrintJob extends PrintNode_Entity
+class PrintJob extends Entity
 {
     protected $id;
     protected $printer;
@@ -31,7 +33,7 @@ class PrintNode_PrintJob extends PrintNode_Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'printer' => 'PrintNode_Printer'
+            'printer' => 'Printer'
         );
     }
 }

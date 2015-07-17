@@ -1,0 +1,4 @@
+vendor
+composer.lock
+credentials.php
+invoice.pdf

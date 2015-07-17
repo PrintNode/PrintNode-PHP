@@ -1,0 +1,27 @@
+{
+    "name": "linkorb/printnode-php",
+    "description": "Connect any printer to your application with PrintNode Client and easy to use JSON API",
+    "require": {
+        "php": ">=5.3.2",
+        "ext-curl": "*"
+    },
+    "keywords": [
+        "linkorb",
+        "php",
+        "PrintNode",
+        "API",
+        "printing"
+    ],
+    "homepage": "https://github.com/linkorb/PrintNode-PHP",
+    "authors": [{
+        "email":    "engineering@linkorb.com"
+    },{
+        "name":     "Contributors",
+        "homepage": "https://github.com/linkorb/PrintNode-PHP/graphs/contributors"
+    }],
+    "autoload": {
+        "psr-4": {
+            "PrintNode\\": "src/"
+        }
+    }
+}
