@@ -36,9 +36,9 @@ class Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'PrintNode\Computer' => 'https://apidev.printnode.com/computers',
-        'PrintNode\Printer' => 'https://apidev.printnode.com/printers',
-        'PrintNode\PrintJob' => 'https://apidev.printnode.com/printjobs',
+        'PrintNode\Computer' => 'https://api.printnode.com/computers',
+        'PrintNode\Printer' => 'https://api.printnode.com/printers',
+        'PrintNode\PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**

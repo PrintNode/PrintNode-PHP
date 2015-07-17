@@ -21,7 +21,7 @@ You can download the client from our Github account. If you have a git client in
 ### Install via composer
 
 ```bash
-composer require linkorb/printnode-php:dev-master
+composer require PrintNode/printnode-php:dev-master
 ```
 
 ## Step 4: See examples how to use this library
