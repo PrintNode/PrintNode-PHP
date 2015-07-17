@@ -53,7 +53,7 @@ $printJob = new PrintNode\PrintJob();
 
 $printJob->printer = $printers[1]; 
 $printJob->contentType = 'pdf_base64'; 
-$printJob->content = base64_encode(file_get_contents('invoice.pdf')); 
+$printJob->content = base64_encode(file_get_contents('a4_portrait.pdf')); 
 $printJob->source = 'My App/1.0'; 
 $printJob->title = 'Test PrintJob from My App/1.0';
 
