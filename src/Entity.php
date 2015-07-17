@@ -1,11 +1,13 @@
 <?php
 
+namespace PrintNode;
+
 /**
- * PrintNode_Entity
+ * Entity
  *
  * Base class for entity objects.
  */
-abstract class PrintNode_Entity implements PrintNode_EntityInterface
+abstract class Entity implements EntityInterface
 {
     /**
      * Recursively cast an object into an array.
@@ -35,17 +37,17 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
      * Map array of data to an entity
      * @param mixed $entityName
      * @param mixed $data
-     * @return PrintNode_Entity
+     * @return Entity
      */
     private static function mapDataToEntity($entityName, stdClass $data)
     {
         $entity = new $entityName();
 
-        if (!($entity instanceof PrintNode_Entity)) {
+        if (!($entity instanceof Entity)) {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
-                    'Object "%s" must extend PrintNode_Entity',
+                    'Object "%s" must extend Entity',
                     $entityName
                 )
             );
@@ -59,7 +61,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
             if (!property_exists($entity, $propertyName)) {
 
-                throw new UnexpectedValueException(
+                throw new \UnexpectedValueException(
                     sprintf(
                         'Property %s->%s does not exist',
                         get_class($entity),
@@ -118,7 +120,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -139,7 +141,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!property_exists($this, $propertyName)) {
 
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
                     get_class($this),
@@ -162,7 +164,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     {
         if (!preg_match('/^(get|set)(.+)$/', $name, $matchesArray)) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     'method "%s" does not exist on entity "%s"',
                     $name,
@@ -177,7 +179,7 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
 
         if (!property_exists($this, $propertyName)) {
 
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 sprintf(
                     'Entity %s does not have a property named %s',
                     get_class($this),
@@ -203,16 +205,16 @@ abstract class PrintNode_Entity implements PrintNode_EntityInterface
     /**
      * Make an array of specified entity from a Response
      * @param mixed $entityName
-     * @param PrintNode_Response $response
-     * @return PrintNode_Entity[]
+     * @param Response $response
+     * @return Entity[]
      */
-    public static function makeFromResponse($entityName, PrintNode_Response $response)
+    public static function makeFromResponse($entityName, Response $response)
     {
         $content = json_decode($response->getContent());
 
         if (!is_array($content)) {
 
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(
                     'Received unexpected response from API\r\n%s',
                     $response->getContent()
