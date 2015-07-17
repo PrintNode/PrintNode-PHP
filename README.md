@@ -11,7 +11,7 @@ This quick start guide covers using the PHP API library. It shows how to find wh
 Before you can use the API, you will need to sign up to PrintNode account, and make a new API key. To help get you started, you will get 50 free prints when you sign up.
 
 ## Step 2: Add a computer and printer
-To have somewhere to print to you need to download and install the PrintNode desktop client on a computer with some printers. You can download the PrintNode Client installer here - www.printnode.com/download . It should be intuitive to setup but for more detailed instructions please see here.
+To have somewhere to print to you need to download and install the PrintNode desktop client on a computer with some printers. You can download the PrintNode Client installer here - www.printnode.com/download . It should be intuitive to setup but for more detailed instructions please see here: https://www.printnode.com/docs/installation/windows/ .
 
 ## Step 3: Install library
 
