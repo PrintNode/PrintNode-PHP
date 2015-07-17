@@ -1,5 +1,5 @@
 {
-    "name": "linkorb/printnode-php",
+    "name": "printnode/printnode-php",
     "description": "Connect any printer to your application with PrintNode Client and easy to use JSON API",
     "require": {
         "php": ">=5.3.2",
