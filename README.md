@@ -1,7 +1,9 @@
 PrintNode-PHP
 =============
 
-PrintNode is a cloud printing services which allows you to connect any printer to your application using our PrintNode Client and easy to use JSON API.  See www.printnode.com for more information.
+PrintNode is a cloud printing services which allows you to connect any printer to your application using our PrintNode Client and easy to use JSON API.  
+
+See www.printnode.com for more information.
 
 This quick start guide covers using the PHP API library. It shows how to find which Computers and Printers you have available for printing and how you can submit PrintJobs using the provided PHP API libraries.
 
@@ -9,7 +11,7 @@ This quick start guide covers using the PHP API library. It shows how to find wh
 Before you can use the API, you will need to sign up to PrintNode account, and make a new API key. To help get you started, you will get 50 free prints when you sign up.
 
 ## Step 2: Add a computer and printer
-To have somewhere to print to you need to download and install the PrintNode desktop client on a computer with some printers. You can download the PrintNode Client installer here. It should be intuitive to setup but for more detailed instructions please see here.
+To have somewhere to print to you need to download and install the PrintNode desktop client on a computer with some printers. You can download the PrintNode Client installer here - www.printnode.com/download . It should be intuitive to setup but for more detailed instructions please see here.
 
 ## Step 3: Install library
 
