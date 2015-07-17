@@ -8,10 +8,8 @@ namespace PrintNode;
  * Credential store used by Request
  * when communicating with API server.
  */
-class Credentials
+interface Credentials
 {
-    private $username;
-    private $password;
 
     /**
      * Constructor
@@ -19,62 +17,23 @@ class Credentials
      * @param mixed $password
      * @return Credentials
      */
-    public function __construct($username, $password)
-    {
-        $this->username = $username;
-        $this->password = $password;
-    }
-
     /**
      * Convert object into a string
      * @param void
      * @return string
      */
-    public function __toString()
-    {
-        return $this->password . ':';
-    }
-
+    public function __toString();
     /**
      * Set property on object
      * @param mixed $propertyName
      * @param mixed $value
      * @return void
      */
-    public function __set($propertyName, $value)
-    {
-        if (!property_exists($this, $propertyName)) {
-
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '%s does not have a property named %s',
-                    get_class($this),
-                    $propertyName
-                )
-            );
-        }
-
-        $this->$propertyName = $value;
-    }
-
+    public function __set($propertyName, $value);
     /**
      * Get property from object
      * @param mixed $propertyName
      * @return mixed
      */
-    public function __get($propertyName)
-    {
-        if (!property_exists($this, $propertyName)) {
-
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '%s does not have a property named %s',
-                    get_class($this),
-                    $propertyName
-                )
-            );
-        }
-
-        return $this->$propertyName;
-    }
+    public function __get($propertyName);
 }

@@ -30,7 +30,7 @@ class Printer extends Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'computer' => 'Computer'
+            'computer' => 'PrintNode\Computer'
         );
     }
 }

@@ -12,10 +12,9 @@
         "API",
         "printing"
     ],
-    "homepage": "https://github.com/linkorb/PrintNode-PHP",
+    "homepage": "https://github.com/PrintNode/PrintNode-PHP",
     "authors": [{
-        "email":    "engineering@linkorb.com"
-    },{
+        "email":    "engineering@linkorb.com",
         "name":     "Contributors",
         "homepage": "https://github.com/linkorb/PrintNode-PHP/graphs/contributors"
     }],

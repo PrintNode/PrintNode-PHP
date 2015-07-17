@@ -2,10 +2,10 @@
     "name": "printnode-example-1",
     "description": "Example #1 how to use PrintNode",
     "require": {
-        "linkorb/printnode-php": "dev-master"
+        "printnode/printnode-php": "dev-master"
     },
     "repositories": [{
         "type": "vcs",
-        "url": "https://github.com/linkorb/PrintNode-PHP"
+        "url": "https://github.com/PrintNode/PrintNode-PHP"
     }]
 }

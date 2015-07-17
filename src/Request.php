@@ -36,9 +36,9 @@ class Request
      * @var string[]
      */
     private $endPointUrls = array(
-        'Computer' => 'https://api.printnode.com/computers',
-        'Printer' => 'https://api.printnode.com/printers',
-        'PrintJob' => 'https://api.printnode.com/printjobs',
+        'PrintNode\Computer' => 'https://apidev.printnode.com/computers',
+        'PrintNode\Printer' => 'https://apidev.printnode.com/printers',
+        'PrintNode\PrintJob' => 'https://apidev.printnode.com/printjobs',
     );
 
     /**
@@ -46,9 +46,9 @@ class Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Computers' => 'Computer',
-        'Printers' => 'Printer',
-        'PrintJobs' => 'PrintJob',
+        'Computers' => 'PrintNode\Computer',
+        'Printers' => 'PrintNode\Printer',
+        'PrintJobs' => 'PrintNode\PrintJob',
     );
 
     /**

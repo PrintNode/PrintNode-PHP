@@ -20,7 +20,7 @@ abstract class Entity implements EntityInterface
 
         foreach ($output as $key => $value) {
 
-            if ($value instanceof DateTime) {
+            if ($value instanceof \DateTime) {
 
                 $output[$key] = $value->format('c');
 
@@ -39,7 +39,7 @@ abstract class Entity implements EntityInterface
      * @param mixed $data
      * @return Entity
      */
-    private static function mapDataToEntity($entityName, stdClass $data)
+    private static function mapDataToEntity($entityName, \stdClass $data)
     {
         $entity = new $entityName();
 
@@ -79,7 +79,7 @@ abstract class Entity implements EntityInterface
 
             } else if (is_string($data->$propertyName) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $data->$propertyName)) {
 
-                $entity->$propertyName = new DateTime($data->$propertyName);
+                $entity->$propertyName = new \DateTime($data->$propertyName);
 
             } else {
 

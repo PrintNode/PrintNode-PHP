@@ -12,9 +12,8 @@ include 'credentials.php';
 // To do this you will need an instance of PrintNode\Credentials populated with 
 // your PrintNode API Key username and password.
 
-$credentials = new PrintNode\Credentials(
-    PRINT_NODE_API_USERNAME,
-    PRINT_NODE_API_PASSWORD
+$credentials = new PrintNode\ApiKey(
+	'god'
 );
 
 // Hint: Your API username is in the format description.integer, where description 
@@ -69,9 +68,6 @@ $response = $request->post($printJob);
 // The response returned from the post method is an instance of PrintNode\Response. 
 // It contains methods for retrieving the response headers, body and HTTP status-code and message.
 
-// Returns an array contain the keys 'code' and 'message'
-$status = $response->getStatus();
-
 // Returns the HTTP status code.
 $statusCode = $response->getStatusCode();
 
@@ -80,7 +76,7 @@ $statusMessage = $response->getStatusMessage();
 
 // Returns an array of HTTP headers.
 $headers = $response->getHeaders();
-
+echo($content);
 // Return the response body.
 $content = $response->getContent();
 

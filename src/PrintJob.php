@@ -33,7 +33,7 @@ class PrintJob extends Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'printer' => 'Printer'
+            'printer' => 'PrintNode\Printer'
         );
     }
 }
