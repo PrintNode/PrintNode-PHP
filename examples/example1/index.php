@@ -75,7 +75,7 @@ $statusMessage = $response->getStatusMessage();
 
 // Returns an array of HTTP headers.
 $headers = $response->getHeaders();
-echo($content);
+
 // Return the response body.
 $content = $response->getContent();
 
