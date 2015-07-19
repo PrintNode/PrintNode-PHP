@@ -7,5 +7,5 @@ You must install dependencies, write your credentials and download example PDF b
 composer install
 cp credentials.php.dist credentials.php
 nano credentials.php
-wget -O invoice.pdf http://harvestpublic.s3.amazonaws.com/resources/Invoice_Template.pdf
+wget -O a4_portrait.pdf https://app.printnode.com/testpdfs/a4_portrait.pdf
 ```
