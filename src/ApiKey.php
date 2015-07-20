@@ -6,11 +6,38 @@ class ApiKey implements Credentials
 {
 
 	private $apikey;
-	private $apiurl = "https://apidev.printnode.com/";
+	private $apiurl = "https://api.printnode.com/";
+	private $headers = [];
+	private $header_types = array(
+		'id' => 'X-Child-Account-By-Id',
+		'email' => 'X-Child-Account-By-Email',
+		'creatorRef' => 'X-Child-Account-By-CreatorRef'
+	);
 
-	public function __construct($apikey)
+
+	public function __construct()
 	{
-		$this->apikey=$apikey;
+		$args_array = func_get_args();
+		if (count($args_array) == 0 || count($args_array) > 3){
+			throw new \InvalidArgumentException(
+				sprintf(
+					'incorrect number of arguments- either ApiKey($apikey) or ApiKey($apikey,$type_of_child_lookup,$child_(id or email or creatorref)'
+				)
+			);
+		}
+		foreach($args_array as $donk){
+			echo($donk);
+		}
+		$this->apikey=$args_array[0];
+		if (count($args_array) == 3){
+			$this->headers = [$this->header_types[$args_array[1]]. ': ' .$args_array[2]];
+		}
+		var_dump($this->headers);
+	}
+
+	public function account_by($type, $data)
+	{
+		$this->headers = [$this->header_types[$type]. ':' .$data];
 	}
 
 	public function __toString()
@@ -31,7 +58,17 @@ class ApiKey implements Credentials
             );
         }
 
-        $this->$propertyName = $value;
+		if ($propertyName == "headers") {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'%s if you want to update headers, use $credentials->account_by(type,data)',
+					get_class($this)
+				)
+			);
+		}
+
+		$this->$propertyName = $value;
+
     }
 
     public function __get($propertyName)

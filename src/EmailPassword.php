@@ -7,7 +7,8 @@ class EmailPassword implements Credentials
 
 	private $email;
 	private $password;
-	private $apiurl = "https://apidev.printnode.com/";
+	private $apiurl = "https://api.printnode.com/";
+	private $headers = ['X-Auth-With-Account-Credentials: API'];
 
 	public function __construct($email,$password)
 	{
@@ -31,7 +32,16 @@ class EmailPassword implements Credentials
                     $propertyName
                 )
             );
-        }
+		}
+
+		if ($propertyName == "headers"){
+			throw new \InvalidArgumentException(
+				sprintf(
+					'%s cannot have headers changed.',
+					get_class($this)
+				)
+			);
+		}
 
         $this->$propertyName = $value;
     }

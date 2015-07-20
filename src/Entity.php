@@ -208,25 +208,18 @@ abstract class Entity implements EntityInterface
      * @param Response $response
      * @return Entity[]
      */
-    public static function makeFromResponse($entityName, Response $response)
+    public static function makeFromResponse($entityName, $content)
     {
-        $content = json_decode($response->getContent());
-
-        if (!is_array($content)) {
-
-            throw new \RuntimeException(
-                sprintf(
-                    'Received unexpected response from API\r\n%s',
-                    $response->getContent()
-                )
-            );
-        }
-
         $output = array();
-
-        foreach ($content as $entityData) {
-            $output[] = self::mapDataToEntity($entityName, $entityData);
-        }
+		if (is_array($content)){
+			foreach ($content as $entityData) {
+				$output[] = self::makeFromResponse($entityName, $entityData);
+			}
+		}elseif (is_object($content)){
+			$output = self::mapDataToEntity($entityName,$content);
+		}else{
+			$output = $content;
+		}
 
         return $output;
     }

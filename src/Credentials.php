@@ -16,7 +16,7 @@ interface Credentials
      * @param mixed $username
      * @param mixed $password
      * @return Credentials
-     */
+	 */
     /**
      * Convert object into a string
      * @param void

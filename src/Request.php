@@ -34,18 +34,25 @@ class Request
     /**
      * Map entity names to API URLs
      * @var string[]
-     */
-    private $endPointUrls = array(
+	 */
+
+	private $endPointUrls = array(
+        'PrintNode\ApiKey' => 'https://api.printnode.com/account/apikey/',
+		'PrintNode\Tag' => 'https://api.printnode.com/account/tag',
+		'PrintNode\Whoami' => 'https://api.printnode.com/whoami',
         'PrintNode\Computer' => 'https://api.printnode.com/computers',
         'PrintNode\Printer' => 'https://api.printnode.com/printers',
-        'PrintNode\PrintJob' => 'https://api.printnode.com/printjobs',
+		'PrintNode\PrintJob' => 'https://api.printnode.com/printjobs',
     );
 
     /**
      * Map method names used by __call to entity names
      * @var string[]
      */
-    private $methodNameEntityMap = array(
+	private $methodNameEntityMap = array(
+		'ApiKeys' => 'PrintNode\ApiKey',
+		'Tags' => 'PrintNode\Tag',
+		'Whoami' => 'PrintNode\Whoami',
         'Computers' => 'PrintNode\Computer',
         'Printers' => 'PrintNode\Printer',
         'PrintJobs' => 'PrintNode\PrintJob',
@@ -164,10 +171,14 @@ class Request
      * @return Response
      */
     private function curlGet($endPointUrl)
-    {
+	{
+		$curlHandle = $this->curlInit();
+
+		curl_setopt($curlHandle,CURLOPT_HTTPHEADER,$this->credentials->headers);
+
         return $this->curlExec(
-            $this->curlInit(),
-            $this->applyOffsetLimit($endPointUrl)
+            $curlHandle,
+            $endPointUrl
         );
     }
 
@@ -214,7 +225,7 @@ class Request
 
         curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string)$entity);
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-type: application/json'),$this->credentials->headers));
 
         return $this->curlExec(
             $curlHandle,
@@ -277,6 +288,121 @@ class Request
         $this->limit = $limit;
     }
 
+	public function getPrintJobStates(){
+
+		$arguments = func_get_args();
+
+		if(count($arguments) > 1){
+			throw new InvalidArgumentException(
+				sprintf(
+					'Too many arguments given to getPrintJobsStates.'
+				)
+			);
+		}
+
+		$endPointUrl = "https://api.printnode.com/printjobs/";
+
+		if(count($arguments) == 0){
+			$endPointUrl.= 'states/';
+		}else{
+			$arg_1 = array_shift($arguments);
+			$endPointUrl.= $arg_1.'/states/';
+		}
+
+		$response = $this->curlGet($endPointUrl);
+
+        if ($response->getStatusCode() != '200') {
+
+            throw new \RuntimeException(
+                sprintf(
+                    'HTTP Error (%d): %s',
+                    $response->getStatusCode(),
+                    $response->getStatusMessage()
+                )
+            );
+        }
+
+        return Entity::makeFromResponse("PrintNode\State", $response->getContent());
+ 	}
+
+
+
+	public function getPrintJobsByPrinters(){
+
+		$arguments = func_get_args();
+
+		if(count($arguments) > 2){
+			throw new InvalidArgumentException(
+				sprintf(
+					'Too many arguments given to getPrintJobsByPrinters.'
+				)
+			);
+		}
+
+		$endPointUrl = "https://api.printnode.com/printers/";
+
+		$arg_1 = array_shift($arguments);
+
+		$endPointUrl.= $arg_1.'/printjobs/';
+
+		foreach($arguments as $argument){
+			$endPointUrl.= $argument;
+		}
+
+		$response = $this->curlGet($endPointUrl);
+
+        if ($response->getStatusCode() != '200') {
+
+            throw new \RuntimeException(
+                sprintf(
+                    'HTTP Error (%d): %s',
+                    $response->getStatusCode(),
+                    $response->getStatusMessage()
+                )
+            );
+        }
+
+        return Entity::makeFromResponse("PrintNode\PrintJob", $response->getContent());
+ 	}
+
+	public function getPrintersByComputers(){
+
+		$arguments = func_get_args();
+
+		if(count($arguments) > 2){
+			throw new InvalidArgumentException(
+				sprintf(
+					'Too many arguments given to getPrintersByComputers.'
+				)
+			);
+		}
+
+		$endPointUrl = "https://api.printnode.com/computers/";
+
+		$arg_1 = array_shift($arguments);
+
+		$endPointUrl.= $arg_1.'/printers/';
+
+		foreach($arguments as $argument){
+			$endPointUrl.= $argument;
+		}
+
+		$response = $this->curlGet($endPointUrl);
+
+        if ($response->getStatusCode() != '200') {
+
+            throw new \RuntimeException(
+                sprintf(
+                    'HTTP Error (%d): %s',
+                    $response->getStatusCode(),
+                    $response->getStatusMessage()
+                )
+            );
+        }
+
+        return Entity::makeFromResponse("PrintNode\Printer", $response->getContent());
+ 	}
+
     /**
      * Map method names getComputers, getPrinters and getPrintJobs to entities
      * @param mixed $methodName
@@ -293,11 +419,11 @@ class Request
 
             $arguments = array_shift($arguments);
 
-            if (!ctype_digit($arguments) && !is_int($arguments)) {
+            if (!is_string($arguments)) {
 
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Invalid argument type passed to %s. Expecting a number got %s',
+                        'Invalid argument type passed to %s. Expecting a string got %s',
                         $methodName,
                         gettype($arguments)
                     )
@@ -305,10 +431,10 @@ class Request
             }
 
             $endPointUrl = sprintf(
-                '%s/%d',
+                '%s/%s',
                 $endPointUrl,
                 $arguments
-            );
+			);
 
         } else {
 
@@ -331,9 +457,13 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse($entityName, $response);
+        return Entity::makeFromResponse($entityName, $response->getContent());
     }
 
+	public function patch(Entity $entity)
+	{
+		return $this->curlSend($entity, 'PATCH');
+	}
     /**
      * POST (create) the specified entity
      * @param Entity $entity
