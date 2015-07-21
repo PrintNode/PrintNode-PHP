@@ -1,6 +1,20 @@
 <?php
+
 include 'vendor/autoload.php';
 $credentials = new PrintNode\Credentials();
+
+/**
+ * There are two ways of authenticating when manipulating a Child Account
+ * 
+ * - Using the Parent Account API Key
+ * - Using the Child Account API Key
+ * 
+ * You can only manipulate a Child Account details when using the Parent Account API Key. 
+ * For example: to change a Child Accounts name, email address, password or delete a Child Account 
+ * you must be use the Parent Account API Key.
+ * 
+ * For this example, you must be authenticated as the Parent Account.
+ **/
 
 $credentials->setApiKey(PRINTNODE_APIKEY);
 $request = new PrintNode\Request($credentials);
@@ -17,6 +31,7 @@ $request = new PrintNode\Request($credentials);
 $request->setChildAccountById($id);
 
 // All requests from this request object will now operate on this Child Account.
+
 $whoami = $request->getWhoami();
 $computers = $request->getComputers();
 $printers = $request->getPrinters();
