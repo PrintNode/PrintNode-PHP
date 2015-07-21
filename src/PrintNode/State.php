@@ -3,18 +3,17 @@
 namespace PrintNode;
 
 /**
- * Printer
+ * State
  *
- * Object representing a Printer in PrintNode API
+ * Object representing a State in PrintNode API
  *
- * @property-read int $id
- * @property-read Computer $computer
- * @property-read string $name
- * @property-read string $description
- * @property-read object $capabilities
- * @property-read boolean $default
- * @property-read DateTime $createTimestamp
+ * @property-read int $printJobId
  * @property-read string $state
+ * @property-read string $message
+ * @property-read object $data
+ * @property-read string $clientVersion
+ * @property-read DateTime $createTimestamp
+ * @property-read int $age
  */
 class State extends Entity
 {

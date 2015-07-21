@@ -2,49 +2,69 @@
 
 namespace PrintNode;
 
-class ApiKey implements Credentials
+class Credentials implements CredentialsInterface
 {
 
 	private $apikey;
-	private $apiurl = "https://api.printnode.com/";
-	private $headers = [];
-	private $header_types = array(
-		'id' => 'X-Child-Account-By-Id',
-		'email' => 'X-Child-Account-By-Email',
-		'creatorRef' => 'X-Child-Account-By-CreatorRef'
-	);
-
+	private $emailPassword;
 
 	public function __construct()
 	{
-		$args_array = func_get_args();
-		if (count($args_array) == 0 || count($args_array) > 3){
-			throw new \InvalidArgumentException(
-				sprintf(
-					'incorrect number of arguments- either ApiKey($apikey) or ApiKey($apikey,$type_of_child_lookup,$child_(id or email or creatorref)'
-				)
-			);
-		}
-		foreach($args_array as $donk){
-			echo($donk);
-		}
-		$this->apikey=$args_array[0];
-		if (count($args_array) == 3){
-			$this->headers = [$this->header_types[$args_array[1]]. ': ' .$args_array[2]];
-		}
-		var_dump($this->headers);
+
 	}
 
-	public function account_by($type, $data)
-	{
-		$this->headers = [$this->header_types[$type]. ':' .$data];
-	}
-
+	/**
+	 * return correct authentcation method 
+	 * @param void
+	 * @return string
+	 * */
 	public function __toString()
 	{
-		return $this->apikey . ':';
+		$string = '';
+		if(isset($this->apikey)){
+			$string = $this->apikey;
+		}else{
+			$string = $this->emailPassword;
+		}
+		return $string;
 	}
 
+	/**
+	 * Set email and password for Email:Password authentication.
+	 * @param string $email
+	 * @param string $password
+	 * */
+
+	public function setEmailPassword($email,$password){
+		if(!isset($this->apikey)){
+			$this->emailpassword = $email.': '.$password;
+		}else{
+			throw new \Exception(
+				print("ApiKey already set.")
+			);
+		}
+	}
+
+	/**
+	 * Set email and password for Email:Password authentication.
+	 * @param string $apikey
+	 * */
+	public function setApiKey($apikey){
+		if(!isset($this->emailPassword)){
+			$this->apikey = $apikey . ':';
+		}else{
+			throw new \Exception(
+				print("EmailPassword already set.")
+			);
+		}
+	}
+
+	/**
+	 * Set property on object
+	 * @param mixed $propertyName
+	 * @param mixed $value
+	 * @return void
+	 * */
     public function __set($propertyName, $value)
     {
         if (!property_exists($this, $propertyName)) {
@@ -71,6 +91,11 @@ class ApiKey implements Credentials
 
     }
 
+    /**
+	 * Get property on object
+	 * @param mixed $propertyName
+	 * @return mixed
+	 * */
     public function __get($propertyName)
     {
         if (!property_exists($this, $propertyName)) {

@@ -6,7 +6,6 @@
         "ext-curl": "*"
     },
     "keywords": [
-        "linkorb",
         "php",
         "PrintNode",
         "API",
@@ -14,13 +13,13 @@
     ],
     "homepage": "https://github.com/PrintNode/PrintNode-PHP",
     "authors": [{
-        "email":    "engineering@linkorb.com",
+        "email":    "support@printnode.com",
         "name":     "Contributors",
-        "homepage": "https://github.com/linkorb/PrintNode-PHP/graphs/contributors"
+        "homepage": "https://www.printnode.com"
     }],
     "autoload": {
         "psr-4": {
-            "PrintNode\\": "src/"
+            "PrintNode\\": "src/PrintNode"
         }
     }
 }

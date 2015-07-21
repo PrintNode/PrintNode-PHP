@@ -8,7 +8,7 @@ namespace PrintNode;
  * Credential store used by Request
  * when communicating with API server.
  */
-interface Credentials
+interface CredentialsInterface
 {
 
     /**

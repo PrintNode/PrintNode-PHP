@@ -83,7 +83,7 @@ abstract class Entity implements EntityInterface
 
             } else {
 
-                $entity->$propertyName = $data->$propertyName;
+                $entity->$propertyName = json_decode(json_encode($data->$propertyName),true);
             }
         }
 
@@ -209,7 +209,8 @@ abstract class Entity implements EntityInterface
      * @return Entity[]
      */
     public static function makeFromResponse($entityName, $content)
-    {
+	{
+		$content = $content;
         $output = array();
 		if (is_array($content)){
 			foreach ($content as $entityData) {
