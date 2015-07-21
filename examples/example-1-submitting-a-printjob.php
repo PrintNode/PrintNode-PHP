@@ -1,13 +1,13 @@
 <?php
 
-// Step 1: Include the autoloader
+// Include the autoloader
 // To include all the PrintNode PHP API classes in your own code, all you need to do is 
 // include/require the autoload.php in your code:
 
 include 'vendor/autoload.php';
 include 'credentials.php';
 
-// Step 2: Open a connection to PrintNode
+// Open a connection to PrintNode
 // You first need to establish a connection to PrintNode. 
 // This can be done by using a PrintNode\ApiKey instance using your api-key.
 
