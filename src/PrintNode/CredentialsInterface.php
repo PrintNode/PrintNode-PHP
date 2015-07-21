@@ -10,13 +10,12 @@ namespace PrintNode;
  */
 interface CredentialsInterface
 {
-
     /**
      * Constructor
      * @param mixed $username
      * @param mixed $password
      * @return Credentials
-	 */
+     */
     /**
      * Convert object into a string
      * @param void

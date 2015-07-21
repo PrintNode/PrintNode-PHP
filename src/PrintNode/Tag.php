@@ -15,9 +15,10 @@ class Tag extends Entity
     protected $name;
     protected $value;
 
-	public function endPointUrlArg(){
-		return $name;
-	}
+    public function endPointUrlArg()
+    {
+        return $name;
+    }
 
     public function foreignKeyEntityMap()
     {

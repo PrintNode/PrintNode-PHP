@@ -20,24 +20,26 @@ namespace PrintNode;
  */
 class Client extends Entity
 {
-	protected $id;
-	protected $enabled;
+    protected $id;
+    protected $enabled;
     protected $edition;
     protected $version;
     protected $os;
     protected $filename;
     protected $filesize;
-	protected $sha1;
+    protected $sha1;
     protected $releaseTimestamp;
     protected $url;
 
-	public function formatForPatch(){
-		return json_encode(array("enabled" => $this->enabled));
-	}
+    public function formatForPatch()
+    {
+        return json_encode(array("enabled" => $this->enabled));
+    }
 
-	public function endPointUrlArg(){
-		return (string)$this->id;
-	}
+    public function endPointUrlArg()
+    {
+        return (string)$this->id;
+    }
 
     public function foreignKeyEntityMap()
     {

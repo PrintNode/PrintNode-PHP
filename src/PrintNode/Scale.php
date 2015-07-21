@@ -30,13 +30,13 @@ class Scale extends Entity
     protected $count;
     protected $measurement;
     protected $clientReprotedCreateTimestamp;
-	protected $ntpOffset;
-	protected $ageOfData;
-	protected $computerId;
-	protected $vendor;
-	protected $product;
-	protected $vendorId;
-	protected $productId;
+    protected $ntpOffset;
+    protected $ageOfData;
+    protected $computerId;
+    protected $vendor;
+    protected $product;
+    protected $vendorId;
+    protected $productId;
 
     public function foreignKeyEntityMap()
     {

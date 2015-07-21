@@ -19,13 +19,9 @@ abstract class Entity implements EntityInterface
         $output = get_object_vars($object);
 
         foreach ($output as $key => $value) {
-
             if ($value instanceof \DateTime) {
-
                 $output[$key] = $value->format('c');
-
-            } else if (is_object($value)) {
-
+            } elseif (is_object($value)) {
                 $output[$key] = static::toArrayRecursive($value);
             }
         }
@@ -44,7 +40,6 @@ abstract class Entity implements EntityInterface
         $entity = new $entityName();
 
         if (!($entity instanceof Entity)) {
-
             throw new \RuntimeException(
                 sprintf(
                     'Object "%s" must extend Entity',
@@ -58,9 +53,7 @@ abstract class Entity implements EntityInterface
         $properties = array_keys(get_object_vars($data));
 
         foreach ($properties as $propertyName) {
-
             if (!property_exists($entity, $propertyName)) {
-
                 throw new \UnexpectedValueException(
                     sprintf(
                         'Property %s->%s does not exist',
@@ -71,19 +64,14 @@ abstract class Entity implements EntityInterface
             }
 
             if (isset($foreignKeyEntityMap[$propertyName])) {
-
                 $entity->$propertyName = self::mapDataToEntity(
                     $foreignKeyEntityMap[$propertyName],
                     $data->$propertyName
                 );
-
-            } else if (is_string($data->$propertyName) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $data->$propertyName)) {
-
+            } elseif (is_string($data->$propertyName) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $data->$propertyName)) {
                 $entity->$propertyName = new \DateTime($data->$propertyName);
-
             } else {
-
-                $entity->$propertyName = json_decode(json_encode($data->$propertyName),true);
+                $entity->$propertyName = json_decode(json_encode($data->$propertyName), true);
             }
         }
 
@@ -119,7 +107,6 @@ abstract class Entity implements EntityInterface
     public function __set($propertyName, $value)
     {
         if (!property_exists($this, $propertyName)) {
-
             throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
@@ -140,7 +127,6 @@ abstract class Entity implements EntityInterface
     public function __get($propertyName)
     {
         if (!property_exists($this, $propertyName)) {
-
             throw new \InvalidArgumentException(
                 sprintf(
                     '%s does not have a property named %s',
@@ -163,7 +149,6 @@ abstract class Entity implements EntityInterface
     public function __call($name, $arguments)
     {
         if (!preg_match('/^(get|set)(.+)$/', $name, $matchesArray)) {
-
             throw new \BadMethodCallException(
                 sprintf(
                     'method "%s" does not exist on entity "%s"',
@@ -178,7 +163,6 @@ abstract class Entity implements EntityInterface
         $propertyName = strtolower(substr($propertyName, 0, 1)). substr($propertyName, 1);
 
         if (!property_exists($this, $propertyName)) {
-
             throw new \BadMethodCallException(
                 sprintf(
                     'Entity %s does not have a property named %s',
@@ -209,18 +193,18 @@ abstract class Entity implements EntityInterface
      * @return Entity[]
      */
     public static function makeFromResponse($entityName, $content)
-	{
-		$content = $content;
+    {
+        $content = $content;
         $output = array();
-		if (is_array($content)){
-			foreach ($content as $entityData) {
-				$output[] = self::makeFromResponse($entityName, $entityData);
-			}
-		}elseif (is_object($content)){
-			$output = self::mapDataToEntity($entityName,$content);
-		}else{
-			$output = $content;
-		}
+        if (is_array($content)) {
+            foreach ($content as $entityData) {
+                $output[] = self::makeFromResponse($entityName, $entityData);
+            }
+        } elseif (is_object($content)) {
+            $output = self::mapDataToEntity($entityName, $content);
+        } else {
+            $output = $content;
+        }
 
         return $output;
     }

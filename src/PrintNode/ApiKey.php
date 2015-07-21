@@ -13,9 +13,10 @@ class ApiKey extends Entity
 {
     protected $description;
 
-	public function endPointUrlArg(){
-		return json_encode($description);
-	}
+    public function endPointUrlArg()
+    {
+        return json_encode($description);
+    }
 
     public function foreignKeyEntityMap()
     {

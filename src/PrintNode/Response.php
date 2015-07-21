@@ -88,10 +88,10 @@ class Response
      * @param void
      * @return mixed
      */
-	public function getDecodedContent()
-	{
-		return json_decode($this->content,true);
-	}
+    public function getDecodedContent()
+    {
+        return json_decode($this->content, true);
+    }
 
     /**
      * Get HTTP status code

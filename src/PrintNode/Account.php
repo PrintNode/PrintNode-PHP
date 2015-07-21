@@ -13,15 +13,14 @@ namespace PrintNode;
  */
 class Account extends Entity
 {
+    protected $Account;
+    protected $ApiKeys;
+    protected $Tags;
 
-	protected $Account;
-	protected $ApiKeys;
-	protected $Tags;
-
-	public function formatForPatch()
-	{
-		return json_encode($this->Account);
-	}
+    public function formatForPatch()
+    {
+        return json_encode($this->Account);
+    }
 
     public function foreignKeyEntityMap()
     {

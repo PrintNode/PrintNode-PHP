@@ -27,23 +27,23 @@ namespace PrintNode;
  */
 class Whoami extends Entity
 {
-	protected $id;
-	protected $firstname;
-	protected $lastname;
-	protected $email;
-	protected $canCreateSubAccounts;
-	protected $creatorEmail;
-	protected $creatorRef;
-	protected $childAccounts;
-	protected $credits;
-	protected $numComputers;
-	protected $totalPrints;
-	protected $versions;
-	protected $connected;
-	protected $Tags;
-	protected $ApiKeys;
-	protected $state;
-	protected $permissions;
+    protected $id;
+    protected $firstname;
+    protected $lastname;
+    protected $email;
+    protected $canCreateSubAccounts;
+    protected $creatorEmail;
+    protected $creatorRef;
+    protected $childAccounts;
+    protected $credits;
+    protected $numComputers;
+    protected $totalPrints;
+    protected $versions;
+    protected $connected;
+    protected $Tags;
+    protected $ApiKeys;
+    protected $state;
+    protected $permissions;
 
     public function foreignKeyEntityMap()
     {

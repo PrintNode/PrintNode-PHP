@@ -2,7 +2,7 @@
 include 'vendor/autoload.php';
 
 $credentials = new PrintNode\Credentials();
-$credentials->setApiKey("god");
+$credentials->setApiKey(PRINTNODE_APIKEY);
 
 
 $request = new PrintNode\Request($credentials);
@@ -13,10 +13,10 @@ $account = new PrintNode\Account();
 
 //We're going to post this object via request. Firstly, we need to fill the Account array.
 $account->Account = array(
-	"firstname" => "AFirstName",
-	"lastname" => "ALastName",
-	"password" => "APassword",
-	"email" => "email@example.com"
+    "firstname" => "AFirstName",
+    "lastname" => "ALastName",
+    "password" => "APassword",
+    "email" => "email@example.com"
 );
 
 $aNewAccount = $request->post($account);
@@ -36,15 +36,15 @@ $request_child->setChildAccountById($id);
 
 //We can then do anything on that account.
 $whoami = $request_child->getWhoami();
-$computers = $request_child->getComputers(); 
-$printers = $request_child->getPrinters(); 
+$computers = $request_child->getComputers();
+$printers = $request_child->getPrinters();
 
 //When authenticating like this, we have some specific things we can do only when we authenticate with a parent account's api-key:
 $account = new PrintNode\Account();
 
 $account->Account = array(
-	"firstname" => "ANewFirstName",
-	"lastname" => "ANewLastName"
+    "firstname" => "ANewFirstName",
+    "lastname" => "ANewLastName"
 );
 
 $request_child->patch($account);
@@ -53,5 +53,3 @@ $whoamiNow = $request_child->getWhoami();
 
 //And finally, we can delete our fake account.
 $request_child->deleteAccount();
-
-

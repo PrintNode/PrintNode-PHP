@@ -12,7 +12,7 @@ include 'credentials.php';
 // This can be done by using a PrintNode\ApiKey instance using your api-key.
 
 $credentials = new PrintNode\ApiKey(
-	PRINTNODE_APIKEY
+    PRINTNODE_APIKEY
 );
 
 // Hint: Your API username is in the format description.integer, where description 
@@ -30,8 +30,8 @@ $request = new PrintNode\Request($credentials);
 // the client software you will not receive any results from the API.
 
 // Call the getComputers, getPrinters() or getPrintJobs() method on the object:
-$computers = $request->getComputers(); 
-$printers = $request->getPrinters(); 
+$computers = $request->getComputers();
+$printers = $request->getPrinters();
 $printJobs = $request->getPrintJobs();
 
 // Hint: The return value from these methods is always an array containing 0 or more 
@@ -51,10 +51,10 @@ $printJob = new PrintNode\PrintJob();
 // 
 // In this example, we're going to print a a base64-encoded PDF named invoice.pdf:
 
-$printJob->printer = $printers[1]; 
-$printJob->contentType = 'pdf_base64'; 
-$printJob->content = base64_encode(file_get_contents('a4_portrait.pdf')); 
-$printJob->source = 'My App/1.0'; 
+$printJob->printer = $printers[1];
+$printJob->contentType = 'pdf_base64';
+$printJob->content = base64_encode(file_get_contents('a4_portrait.pdf'));
+$printJob->source = 'My App/1.0';
 $printJob->title = 'Test PrintJob from My App/1.0';
 
 // Hint: The PrintNode PHP API comes complete with PHPDoc comments. 
@@ -78,4 +78,3 @@ $headers = $response->getHeaders();
 
 // Return the response body.
 $content = $response->getContent();
-
