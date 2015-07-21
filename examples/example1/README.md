@@ -1,4 +1,4 @@
-# Example #1
+# Submitting A Printjob
 This example shows how to submit a remote printjob from your PHP application to a remote computer.
 
 ## Prerequisites
