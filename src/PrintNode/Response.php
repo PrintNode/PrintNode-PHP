@@ -84,6 +84,16 @@ class Response
     }
 
     /**
+     * Get Response body decoded into an array
+     * @param void
+     * @return mixed
+     */
+	public function getDecodedContent()
+	{
+		return json_decode($this->content,true);
+	}
+
+    /**
      * Get HTTP status code
      * @param void
      * @return string

@@ -665,8 +665,6 @@ class Request
 			$endPointUrl.= '/'.$entity->endPointUrlArg();
 		}
 
-		echo((string)$entity);
-
         return $this->curlSend('POST', $entity, $endPointUrl);
     }
 
