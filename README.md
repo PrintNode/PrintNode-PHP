@@ -16,7 +16,9 @@ To have somewhere to print to you need to download and install the PrintNode des
 ## Step 3: Install library
 
 ### Download the PHP Library
-You can download the client from our Github account. If you have a git client installed locally, you can clone our repository from the Github website. Alternatively, you can also download archives of the files.
+You can download the client from our Github account. If you have a git client installed locally, you can clone our repository 
+
+https://github.com/PrintNode/PrintNode-PHP/archive/master.zip
 
 ### Install via composer
 
