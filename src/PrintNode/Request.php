@@ -22,7 +22,7 @@ class Request
      * API url to use with the client
      * @var string
      * */
-    private $apiurl = "https://apidev.printnode.com";
+    private $apiurl = "https://api.printnode.com";
     /**
      * Header for child authentication
      * @var string[]
