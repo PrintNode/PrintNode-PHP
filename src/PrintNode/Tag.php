@@ -17,8 +17,13 @@ class Tag extends Entity
 
     public function endPointUrlArg()
     {
-        return $name;
+        return $this->name;
     }
+
+	public function formatForPost()
+	{
+		return json_encode($this->value);
+	}
 
     public function foreignKeyEntityMap()
     {

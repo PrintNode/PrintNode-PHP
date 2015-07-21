@@ -22,7 +22,7 @@ class Request
      * API url to use with the client
      * @var string
      * */
-    private $apiurl = "https://api.printnode.com";
+    private $apiurl = "https://apidev.printnode.com";
     /**
      * Header for child authentication
      * @var string[]
@@ -194,7 +194,6 @@ class Request
     private function curlGet($endPointUrl)
     {
         $curlHandle = $this->curlInit();
-
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->childauth);
 
         return $this->curlExec(
@@ -336,13 +335,13 @@ class Request
      * @param string $apikey
      * @return string $response->GetContent()
      * */
-    public function deleteApiKey(string $apikey)
+    public function deleteApiKey($apikey)
     {
-        $endPointUrl = $this->apiurl."/apikey/".$apikey;
+        $endPointUrl = $this->apiurl."/account/apikey/".$apikey;
 
         $response = $this->curlDelete($endPointUrl);
 
-        return $response->GetContent();
+        return $response;
     }
 
     /**
@@ -350,13 +349,13 @@ class Request
      * @param string $tag
      * @return string $response->GetContent()
      * */
-    public function deleteTag(string $tag)
+    public function deleteTag($tag)
     {
-        $endPointUrl = $this->apiurl."/tag/".$tag;
+        $endPointUrl = $this->apiurl."/account/tag/".$tag;
 
         $response = $this->curlDelete($endPointUrl);
 
-        return $response->GetContent();
+        return $response;
     }
 
     /**
@@ -378,7 +377,7 @@ class Request
 
         $response = $this->curlDelete($endPointUrl);
 
-        return $response->GetContent();
+        return $response;
     }
 
     /**
@@ -394,7 +393,7 @@ class Request
 
         $response = $this->curlDelete($endPointUrl);
 
-        return $response->GetContent();
+        return $response;
     }
 
     /**
@@ -436,7 +435,7 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse("PrintNode\State", json_decode($response->getContent(), true));
+        return Entity::makeFromResponse("PrintNode\State", json_decode($response->getContent()));
     }
 
 
@@ -654,7 +653,11 @@ class Request
 
         if (method_exists($entity, 'endPointUrlArg')) {
             $endPointUrl.= '/'.$entity->endPointUrlArg();
-        }
+		}
+
+		if (method_exists($entity, 'formatForPost')){
+			$entity = $entity->formatForPost();
+		}
 
         return $this->curlSend('POST', $entity, $endPointUrl);
     }
