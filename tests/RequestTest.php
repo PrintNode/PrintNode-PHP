@@ -210,5 +210,17 @@ class RequestTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($response->GetDecodedContent(),$getKey);
 		$request->DeleteAccount();
 	}
+
+	/**
+	* @depends testApiKeyAuth
+	*
+	* */
+	public function testClientKey(){
+		$this->credentials->setApiKey($this->apikey);
+		$request = new PrintNode\Request($this->credentials);
+		$response = $request->getClientKey('0a756864-602e-428f-a90b-842dee47f57e','4.7.1','printnode');
+		$this->assertInternaltype("string",$response->GetDecodedContent());
+	}
+
 }
 ?>

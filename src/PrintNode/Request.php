@@ -333,7 +333,7 @@ class Request
     /**
      * Delete an ApiKey for a child account
      * @param string $apikey
-     * @return string $response->GetContent()
+     * @return Response
      * */
     public function deleteApiKey($apikey)
     {
@@ -347,7 +347,7 @@ class Request
     /**
      * Delete a tag for a child account
      * @param string $tag
-     * @return string $response->GetContent()
+     * @return Response
      * */
     public function deleteTag($tag)
     {
@@ -361,7 +361,7 @@ class Request
     /**
      * Delete a child account
      * MUST have $this->childauth set to run.
-     * @return string $response->GetContent()
+     * @return Response
      * */
     public function deleteAccount()
     {
@@ -385,13 +385,13 @@ class Request
      * @param string $uuid
      * @param string $edition
      * @param string $version
-     * @return string $response->GetContent()
+     * @return Resposne
      * */
-    public function getClientKey(string $uuid, string $edition, string $version)
+    public function getClientKey($uuid, $edition, $version)
     {
         $endPointUrl = $this->apiurl."/client/key/".$uuid."?edition=".$edition."&version=".$version;
 
-        $response = $this->curlDelete($endPointUrl);
+        $response = $this->curlGet($endPointUrl);
 
         return $response;
     }
