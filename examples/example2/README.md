@@ -1,5 +1,5 @@
-# Example #2 - Manipulating PrintNode Child Accounts
-This example shows how to use the PHP Library to control PrintNode Client accounts.  If you are integrating PrintNode cloud printing into your own product you will want multiple accounts - one for each of your customers.  You will need to have an Intergrator account for this example to work.  
+#Creating PrintNode Child Accounts
+This example shows how to use the PHP Library to create PrintNode Child Accounts.  If you are integrating PrintNode cloud printing into your own product you will want multiple Child Accounts - one for each of your customers.  You will need to have an Intergrator account for this example to work.  
 
 ## Prerequisites
 You must install:
@@ -11,7 +11,6 @@ You must install:
 composer install
 cp credentials.php.dist credentials.php
 nano credentials.php
-wget -O a4_portrait.pdf https://app.printnode.com/testpdfs/a4_portrait.pdf
 ```
 
 ##Running the Example
