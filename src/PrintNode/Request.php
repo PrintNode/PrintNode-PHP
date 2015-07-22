@@ -18,16 +18,19 @@ class Request
      * @var Credentials
      */
     private $credentials;
+    
     /**
      * API url to use with the client
      * @var string
      * */
     private $apiurl = "https://api.printnode.com";
+    
     /**
      * Header for child authentication
      * @var string[]
      * */
     private $childauth = array();
+    
     /**
      * Offset query argument on GET requests
      * @var int
@@ -78,7 +81,6 @@ class Request
      * @param mixed $entityName
      * @return string
      */
-
     private function makeEndPointUrls()
     {
         $endPointUrls;
@@ -329,7 +331,6 @@ class Request
         $this->limit = $limit;
     }
 
-
     /**
      * Delete an ApiKey for a child account
      * @param string $apikey
@@ -401,7 +402,6 @@ class Request
      * @param string $printjobId OPTIONAL:if unset gives states relative to all printjobs.
      * @return Entity[]
      * */
-
     public function getPrintJobStates()
     {
         $arguments = func_get_args();
@@ -633,6 +633,7 @@ class Request
 
         return $this->curlSend('PATCH', $entity, $endPointUrl);
     }
+
     /**
      * POST (create) the specified entity
      * @param Entity $entity
