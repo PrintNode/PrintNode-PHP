@@ -1,6 +1,11 @@
 <?php
 include 'vendor/autoload.php';
 
+/**
+ * To create Child Accounts you need a PrintNode Integrator Account. 
+ * You then need to authenticate with your API Key.
+ **/
+ 
 $credentials = new PrintNode\Credentials();
 $credentials->setApiKey(PRINTNODE_APIKEY);
 
