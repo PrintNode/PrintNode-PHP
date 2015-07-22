@@ -14,5 +14,3 @@ interface EntityInterface
     public function foreignKeyEntityMap();
     
 }
-
-?>
