@@ -12,4 +12,7 @@ interface EntityInterface
      * @return string[]
      */
     public function foreignKeyEntityMap();
+    
 }
+
+?>
