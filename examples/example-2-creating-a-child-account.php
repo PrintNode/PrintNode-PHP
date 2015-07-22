@@ -22,3 +22,4 @@ $aNewAccount = $request->post($account);
 
 // You can get the Child Account ID from the response object
 $id = $aNewAccount->GetDecodedContent()["Account"]["id"];
+?>
