@@ -22,7 +22,7 @@ class Request
      * API url to use with the client
      * @var string
      * */
-    private $apiurl = "https://api.printnode.com";
+    private $apiurl = "https://apidev.printnode.com";
     /**
      * Header for child authentication
      * @var string[]
@@ -72,6 +72,38 @@ class Request
         'Printers' => 'PrintNode\Printer',
         'PrintJobs' => 'PrintNode\PrintJob',
     );
+
+    /**
+     * Constructor
+     * @param Credentials $credentials
+     * @param mixed $endPointUrls
+     * @param mixed $methodNameEntityMap
+     * @param int $offset
+     * @param int $limit
+     * @return Request
+     */
+    public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
+    {
+        if (!function_exists('curl_init')) {
+            throw new \RuntimeException('Function curl_init does not exist.');
+        }
+
+        $this->credentials = $credentials;
+
+        if ($endPointUrls) {
+            $this->endPointUrls = $endPointUrls;
+        }
+
+        if ($methodNameEntityMap) {
+            $this->methodNameEntityMap = $methodNameEntityMap;
+        }
+
+        $this->makeEndPointUrls();
+
+        $this->setOffset($offset);
+        $this->setLimit($limit);
+    }
+
 
     /**
      * Get API EndPoint URL from an entity name
@@ -231,7 +263,7 @@ class Request
         parse_str($endPointUrlArray['query'], $queryStringArray);
 
         $queryStringArray['offset'] = $this->offset;
-        $queryStringArray['limit'] = min(max(1, $this->limit), 10);
+        $queryStringArray['limit'] = min(max(1, $this->limit), 500);
 
         $endPointUrlArray['query'] = http_build_query($queryStringArray, null, '&');
 
@@ -271,38 +303,6 @@ class Request
             $endPointUrl
         );
     }
-
-    /**
-     * Constructor
-     * @param Credentials $credentials
-     * @param mixed $endPointUrls
-     * @param mixed $methodNameEntityMap
-     * @param int $offset
-     * @param int $limit
-     * @return Request
-     */
-    public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
-    {
-        if (!function_exists('curl_init')) {
-            throw new \RuntimeException('Function curl_init does not exist.');
-        }
-
-        $this->credentials = $credentials;
-
-        if (count($endPointUrls)) {
-            $this->endPointUrls = $endPointUrls;
-        }
-
-        if (count($methodNameEntityMap)) {
-            $this->methodNameEntityMap = $methodNameEntityMap;
-        }
-
-        $this->makeEndPointUrls();
-
-        $this->setOffset($offset);
-        $this->setLimit($limit);
-    }
-
     /**
      * Set the offset for GET requests
      * @param mixed $offset

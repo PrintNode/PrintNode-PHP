@@ -17,46 +17,42 @@ class Credentials implements CredentialsInterface
      * @return string
      * */
     public function __toString()
-    {
-        $string = '';
-        if (isset($this->apikey)) {
-            $string = $this->apikey;
-        } else {
-            $string = $this->emailPassword;
-        }
-        return $string;
+	{
+		return (isset($this->apikey) ? $this->apikey : $this->emailPassword);
     }
 
     /**
      * Set email and password for Email:Password authentication.
      * @param string $email
-     * @param string $password
+	 * @param string $password
+	 * @return Credentials
      * */
 
     public function setEmailPassword($email, $password)
     {
-        if (!isset($this->apikey)) {
-            $this->emailpassword = $email.': '.$password;
-        } else {
+        if (isset($this->apikey)) {
             throw new \Exception(
-                print("ApiKey already set.")
+                "ApiKey already set."
             );
-        }
+		}
+		$this->emailpassword = $email.': '.$password;
+		return $this;
     }
 
     /**
      * Set email and password for Email:Password authentication.
-     * @param string $apikey
+	 * @param string $apikey
+	 * @return Credentials
      * */
     public function setApiKey($apikey)
     {
-        if (!isset($this->emailPassword)) {
-            $this->apikey = $apikey . ':';
-        } else {
+        if (isset($this->emailPassword)) {
             throw new \Exception(
-                print("EmailPassword already set.")
+                "EmailPassword already set."
             );
-        }
+		}
+		$this->apikey = $apikey . ':';
+		return $this;
     }
 
     /**
@@ -75,18 +71,8 @@ class Credentials implements CredentialsInterface
                     $propertyName
                 )
             );
-        }
-
-        if ($propertyName == "headers") {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '%s if you want to update headers, use $credentials->account_by(type,data)',
-                    get_class($this)
-                )
-            );
-        }
-
-        $this->$propertyName = $value;
+		}
+		$this->$propertyName = $value;
     }
 
     /**
