@@ -16,12 +16,14 @@ interface CredentialsInterface
      * @param mixed $password
      * @return Credentials
      */
+     
     /**
      * Convert object into a string
      * @param void
      * @return string
      */
     public function __toString();
+    
     /**
      * Set property on object
      * @param mixed $propertyName
@@ -29,6 +31,7 @@ interface CredentialsInterface
      * @return void
      */
     public function __set($propertyName, $value);
+    
     /**
      * Get property from object
      * @param mixed $propertyName
