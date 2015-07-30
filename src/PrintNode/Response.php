@@ -126,6 +126,22 @@ TEXT
         return $statusCode >= 200 and $statusCode < 300;
     }
 
+    public function getHTTPException ()
+    {
+        if ($this->isOK()) {
+            return new \RuntimeException("HTTP response {$this->getStatusCode()}. No HTTPException to throw");
+        }
+        return new \RuntimeException(
+            sprintf(
+                '%s %s - HTTP Error (%d): %s',
+                $this->getMethod(),
+                $this->getUrl(),
+                $this->getStatusCode(),
+                $this->getStatusMessage()
+            )
+        );
+    }
+
     /**
      * Get HTTP status code
      * @param void
