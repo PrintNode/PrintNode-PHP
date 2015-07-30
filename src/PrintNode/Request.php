@@ -13,6 +13,7 @@ namespace PrintNode;
  */
 class Request
 {
+
     /**
      * Credentials to use when communicating with API
      * @var Credentials
@@ -23,13 +24,14 @@ class Request
      * API url to use with the client
      * @var string
      * */
-    private $apiurl = "https://apidev.printnode.com";
+    private $apiHost;
 
     /**
      * Header for child authentication
      * @var string[]
      * */
     private $headers = array();
+
     /**
      * Offset query argument on GET requests
      * @var int
@@ -86,13 +88,14 @@ class Request
      * @param int $limit
      * @return Request
      */
-    public function __construct(Credentials $credentials, array $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
+    public function __construct(Credentials $credentials, $apiHost = "https://apidev.printnode.com", $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
         if (!function_exists('curl_init')) {
             throw new \RuntimeException('Function curl_init does not exist.');
         }
 
         $this->credentials = $credentials;
+        $this->apiHost = $apiHost;
 
 		$this->headers = $credentials->getHeaders();
 
@@ -120,7 +123,7 @@ class Request
     {
         $endPointUrls;
         foreach ($this->methodNameEntityMap as $classes) {
-            $endPointUrls[$classes] = $this->apiurl.$this->endPointUrls[$classes];
+            $endPointUrls[$classes] = $this->apiHost.$this->endPointUrls[$classes];
         }
         $this->endPointUrls = $endPointUrls;
     }
@@ -278,10 +281,10 @@ class Request
         $endPointUrlArray['query'] = http_build_query($queryStringArray, null, '&');
 
         $endPointUrl = (isset($endPointUrlArray['scheme'])) ? "{$endPointUrlArray['scheme']}://" : '';
-        $endPointUrl.= (isset($endPointUrlArray['host'])) ? "{$endPointUrlArray['host']}" : '';
-        $endPointUrl.= (isset($endPointUrlArray['port'])) ? ":{$endPointUrlArray['port']}" : '';
-        $endPointUrl.= (isset($endPointUrlArray['path'])) ? "{$endPointUrlArray['path']}" : '';
-        $endPointUrl.= (isset($endPointUrlArray['query'])) ? "?{$endPointUrlArray['query']}" : '';
+        $endPointUrl .= (isset($endPointUrlArray['host'])) ? "{$endPointUrlArray['host']}" : '';
+        $endPointUrl .= (isset($endPointUrlArray['port'])) ? ":{$endPointUrlArray['port']}" : '';
+        $endPointUrl .= (isset($endPointUrlArray['path'])) ? "{$endPointUrlArray['path']}" : '';
+        $endPointUrl .= (isset($endPointUrlArray['query'])) ? "?{$endPointUrlArray['query']}" : '';
 
         return $endPointUrl;
     }
@@ -346,7 +349,7 @@ class Request
      * */
     public function deleteApiKey($apikey)
     {
-        $endPointUrl = $this->apiurl."/account/apikey/".$apikey;
+        $endPointUrl = $this->apiHost."/account/apikey/".$apikey;
 
         $response = $this->curlDelete($endPointUrl);
 
@@ -360,7 +363,7 @@ class Request
      * */
     public function deleteTag($tag)
     {
-        $endPointUrl = $this->apiurl."/account/tag/".$tag;
+        $endPointUrl = $this->apiHost."/account/tag/".$tag;
 
         $response = $this->curlDelete($endPointUrl);
 
@@ -382,7 +385,7 @@ class Request
             );
         }
 
-        $endPointUrl = $this->apiurl."/account/";
+        $endPointUrl = $this->apiHost."/account/";
 
         $response = $this->curlDelete($endPointUrl);
 
@@ -398,7 +401,7 @@ class Request
      * */
     public function getClientKey($uuid, $edition, $version)
     {
-        $endPointUrl = $this->apiurl."/client/key/".$uuid."?edition=".$edition."&version=".$version;
+        $endPointUrl = $this->apiHost."/client/key/".$uuid."?edition=".$edition."&version=".$version;
 
         $response = $this->curlGet($endPointUrl);
 
@@ -423,7 +426,7 @@ class Request
             );
         }
 
-        $endPointUrl = $this->apiurl."/printjobs/";
+        $endPointUrl = $this->apiHost."/printjobs/";
 
         if (count($arguments) == 0) {
             $endPointUrl.= 'states/';
@@ -469,7 +472,7 @@ class Request
             );
         }
 
-        $endPointUrl = $this->apiurl."/printers/";
+        $endPointUrl = $this->apiHost."/printers/";
 
         $arg_1 = array_shift($arguments);
 
@@ -501,7 +504,7 @@ class Request
      * */
     public function getScales(string $computerId)
     {
-        $endPointUrl = $this->apiurl."/computer/";
+        $endPointUrl = $this->apiHost."/computer/";
         $endPointUrl.= $computerId;
         $endPointUrl.= '/scales';
 
@@ -539,7 +542,7 @@ class Request
             );
         }
 
-        $endPointUrl = $this->apiurl."/computers/";
+        $endPointUrl = $this->apiHost."/computers/";
         $arg_1 = array_shift($arguments);
         $endPointUrl .= $arg_1.'/printers/';
 

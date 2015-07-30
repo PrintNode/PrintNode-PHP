@@ -28,28 +28,6 @@ class Response
     private $content;
 
     /**
-     * Extract the HTTP status code and message
-     * from the Response headers
-     * @param void
-     * @return mixed[]
-     */
-    private function getStatus()
-    {
-        if (!($statusArray = preg_grep('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $this->headers))) {
-            throw new \RuntimeException('Could not determine HTTP status from API response');
-        }
-
-        if (!preg_match('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $statusArray[0], $matchesArray)) {
-            throw new \RuntimeException('Could not determine HTTP status from API response');
-        }
-
-        return array(
-            'code' => $matchesArray[2],
-            'message' => $matchesArray[3],
-        );
-    }
-
-    /**
      * Constructor
      * @param mixed $url
      * @param mixed $content
@@ -90,7 +68,22 @@ class Response
      */
     public function getDecodedContent()
     {
-        return json_decode($this->content, true);
+        $decoded = json_decode($this->content, true);
+        // have error?
+        if (null === $decoded and JSON_ERROR_NONE !== $lastError = json_last_error()) {
+            $message = sprintf(<<<TEXT
+PrintNode API did not return valid JSON for request %s.
+
+--- BEGIN SERVER RESPONSE ---
+%s
+--- END SERVER RESPONSE ---
+TEXT
+                , $this->url,
+                $this->content
+            );
+            throw new \RuntimeException($message);
+        }
+        return $decoded;
     }
 
     /**
@@ -114,4 +107,27 @@ class Response
         $status = $this->getStatus();
         return $status['message'];
     }
+
+    /**
+     * Extract the HTTP status code and message
+     * from the Response headers
+     * @param void
+     * @return mixed[]
+     */
+    private function getStatus()
+    {
+        if (!($statusArray = preg_grep('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $this->headers))) {
+            throw new \RuntimeException('Could not determine HTTP status from API response');
+        }
+
+        if (!preg_match('/^HTTP\/(1.0|1.1)\s+(\d+)\s+(.+)/', $statusArray[0], $matchesArray)) {
+            throw new \RuntimeException('Could not determine HTTP status from API response');
+        }
+
+        return array(
+            'code' => $matchesArray[2],
+            'message' => $matchesArray[3],
+        );
+    }
+
 }
