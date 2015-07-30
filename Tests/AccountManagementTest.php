@@ -1,6 +1,5 @@
 <?php
 
-include 'credentials.php';
 class AccountsTests extends PHPUnit_Framework_TestCase
 {
 

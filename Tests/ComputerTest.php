@@ -1,7 +1,5 @@
 <?php
 
-include 'credentials.php';
-
 use PrintNode\Request;
 use PrintNode\Account;
 

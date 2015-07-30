@@ -1,0 +1,4 @@
+<phpunit bootstrap="./phpunit-bootstrap.php"
+         colors="true"
+         stopOnFailure="false">
+</phpunit>
