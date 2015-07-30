@@ -6,8 +6,7 @@ include 'vendor/autoload.php';
  * You then need to authenticate with your API Key.
  **/
  
-$credentials = new PrintNode\Credentials();
-$credentials->setApiKey(PRINTNODE_APIKEY);
+$credentials = new PrintNode\ApiKeyCredentials(PRINTNODE_APIKEY);
 
 $request = new PrintNode\Request($credentials);
 

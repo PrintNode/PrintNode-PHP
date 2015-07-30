@@ -9,9 +9,9 @@ include 'credentials.php';
 
 // Open a connection to PrintNode
 // You first need to establish a connection to PrintNode. 
-// This can be done by using a PrintNode\ApiKey instance using your api-key.
+// This can be done by using a PrintNode\ApiKeyCredentails instance using your api-key.
 
-$credentials = new PrintNode\ApiKey(
+$credentials = new PrintNode\ApiKeyCredentials(
     PRINTNODE_APIKEY
 );
 

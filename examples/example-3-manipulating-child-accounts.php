@@ -1,7 +1,7 @@
 <?php
 
 include 'vendor/autoload.php';
-$credentials = new PrintNode\Credentials();
+$credentials = new PrintNode\ApiKeyCredentials(PRINTNODE_APIKEY);
 
 /**
  * There are two ways of authenticating when manipulating a Child Account
@@ -15,8 +15,9 @@ $credentials = new PrintNode\Credentials();
  * 
  * For this example, you must be authenticated as the Parent Account.
  **/
+ 
 
-$credentials->setApiKey(PRINTNODE_APIKEY);
+$credentials->setChildAccountById($id);
 $request = new PrintNode\Request($credentials);
 
 /**
@@ -28,7 +29,6 @@ $request = new PrintNode\Request($credentials);
  *
  * We will set the Child Account by ID
  **/
-$request->setChildAccountById($id);
 
 // All requests from this request object will now operate on this Child Account.
 
