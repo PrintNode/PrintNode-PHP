@@ -21,8 +21,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	}
 
 	protected function setUp(){
-		$this->credentials = new PrintNode\Credentials;
-		$this->credentials->setApiKey($this->apikey);
+		$this->credentials = new PrintNode\ApiKeyCredentials($this->apikey);
 		$ch = curl_init("https://apidev.printnode.com/test/data/generate");
 		curl_setopt($ch,CURLOPT_USERPWD,(string)$this->credentials);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);

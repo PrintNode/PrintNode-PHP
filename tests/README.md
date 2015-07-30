@@ -7,7 +7,8 @@
 
 ## Running the tests
 ```bash
-phpunit --bootstrap ../vendor/autoload.php RequestTest.php
+phpunit --bootstrap ../vendor/autoload.php ComputersTests.php
+phpunit --bootstrap ../vendor/autoload.php AccountsTests.php
 ```
 
 
