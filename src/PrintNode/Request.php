@@ -2,6 +2,10 @@
 
 namespace PrintNode;
 
+if (!function_exists('curl_init')) {
+    throw new \RuntimeException('Function curl_init() does not exist. Have you installed php curl?');
+}
+
 /**
  * Request
  *
@@ -90,45 +94,29 @@ class Request
      */
     public function __construct(Credentials $credentials, $apiHost = "https://apidev.printnode.com", $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
-        if (!function_exists('curl_init')) {
-            throw new \RuntimeException('Function curl_init does not exist.');
-        }
 
         $this->credentials = $credentials;
         $this->apiHost = $apiHost;
 
-		$this->headers = $credentials->getHeaders();
-
         if ($endPointUrls) {
             $this->endPointUrls = $endPointUrls;
         }
-
         if ($methodNameEntityMap) {
             $this->methodNameEntityMap = $methodNameEntityMap;
         }
 
-        $this->makeEndPointUrls();
-
         $this->setOffset($offset);
         $this->setLimit($limit);
-    }
 
+		$this->headers = $credentials->getHeaders();
+    }
 
     /**
-     * Get API EndPoint URL from an entity name
-     * @param mixed $entityName
-     * @return string
+     * Given a Entity return a api endpoint for that entity
+     * @param String
+     * @return String
      */
-    private function makeEndPointUrls()
-    {
-        $endPointUrls;
-        foreach ($this->methodNameEntityMap as $classes) {
-            $endPointUrls[$classes] = $this->apiHost.$this->endPointUrls[$classes];
-        }
-        $this->endPointUrls = $endPointUrls;
-    }
-
-    private function getEndPointUrl($entityName)
+    private function getEndPointUrl ($entityName)
     {
         if (!isset($this->endPointUrls[$entityName])) {
             throw new \InvalidArgumentException(
@@ -138,8 +126,7 @@ class Request
                 )
             );
         }
-
-        return $this->endPointUrls[$entityName];
+        return $this->apiHost.$this->endPointUrls[$entityName];
     }
 
     /**
@@ -178,24 +165,19 @@ class Request
      * @param void
      * @return resource
      */
-    private function curlInit()
+    private function curlInit ()
     {
         $curlHandle = curl_init();
 
         curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
-
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
         curl_setopt($curlHandle, CURLOPT_HEADER, true);
-
-        curl_setopt($curlHandle, CURLOPT_USERPWD, (string)$this->credentials);
-
+        curl_setopt($curlHandle, CURLOPT_USERPWD, (string) $this->credentials);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
-
 		curl_setopt($curlHandle, CURLOPT_TIMEOUT, 4);
-
-        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, false);
 
         return $curlHandle;
     }
@@ -206,11 +188,13 @@ class Request
      * @param mixed $endPointUrl
      * @return Response
      */
-    private function curlExec($curlHandle, $endPointUrl)
+    private function curlExec ($curlHandle, $method, $url)
     {
-        curl_setopt($curlHandle, CURLOPT_URL, $endPointUrl);
 
-        if (($response = @curl_exec($curlHandle)) === false) {
+        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curlHandle, CURLOPT_URL, $url);
+
+        if (false === $response = @curl_exec($curlHandle)) {
             throw new \RuntimeException(
                 sprintf(
                     'cURL Error (%d): %s',
@@ -228,7 +212,7 @@ class Request
 
         $headers = explode("\r\n", array_pop($response_parts));
 
-        return new Response($endPointUrl, $content, $headers);
+        return new Response($url, $content, $headers);
     }
 
     /**
@@ -236,28 +220,18 @@ class Request
      * @param mixed $endPointUrl
      * @return Response
      */
-    private function curlGet($endPointUrl)
+    private function curlGet ($url)
     {
         $curlHandle = $this->curlInit();
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
-
-        return $this->curlExec(
-            $curlHandle,
-            $endPointUrl
-        );
+        return $this->curlExec($curlHandle, 'GET', $url);
     }
 
-    private function curlDelete($endPointUrl)
+    private function curlDelete($url)
     {
         $curlHandle = $this->curlInit();
-
-        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
-
-        return $this->curlExec(
-            $curlHandle,
-            $endPointUrl
-        );
+        return $this->curlExec($curlHandle, 'DELETE', $url);
     }
 
     /**
@@ -265,28 +239,28 @@ class Request
      * @param mixed $endPointUrl
      * @return string
      */
-    private function applyOffsetLimit($endPointUrl)
+    private function applyOffsetLimit ($url)
     {
-        $endPointUrlArray = parse_url($endPointUrl);
+        $urlArray = parse_url($url);
 
-        if (!isset($endPointUrlArray['query'])) {
-            $endPointUrlArray['query'] = null;
+        if (!isset($urlArray['query'])) {
+            $urlArray['query'] = null;
         }
 
-        parse_str($endPointUrlArray['query'], $queryStringArray);
+        parse_str($urlArray['query'], $queryStringArray);
 
         $queryStringArray['offset'] = $this->offset;
         $queryStringArray['limit'] = min(max(1, $this->limit), 500);
 
-        $endPointUrlArray['query'] = http_build_query($queryStringArray, null, '&');
+        $urlArray['query'] = http_build_query($queryStringArray, null, '&');
 
-        $endPointUrl = (isset($endPointUrlArray['scheme'])) ? "{$endPointUrlArray['scheme']}://" : '';
-        $endPointUrl .= (isset($endPointUrlArray['host'])) ? "{$endPointUrlArray['host']}" : '';
-        $endPointUrl .= (isset($endPointUrlArray['port'])) ? ":{$endPointUrlArray['port']}" : '';
-        $endPointUrl .= (isset($endPointUrlArray['path'])) ? "{$endPointUrlArray['path']}" : '';
-        $endPointUrl .= (isset($endPointUrlArray['query'])) ? "?{$endPointUrlArray['query']}" : '';
+        $url = (isset($urlArray['scheme'])) ? "{$urlArray['scheme']}://" : '';
+        $url .= (isset($urlArray['host'])) ? "{$urlArray['host']}" : '';
+        $url .= (isset($urlArray['port'])) ? ":{$urlArray['port']}" : '';
+        $url .= (isset($urlArray['path'])) ? "{$urlArray['path']}" : '';
+        $url .= (isset($urlArray['query'])) ? "?{$urlArray['query']}" : '';
 
-        return $endPointUrl;
+        return $url;
     }
 
     /**
@@ -295,27 +269,18 @@ class Request
      * @param mixed $httpMethod
      * @return Response
      */
-    private function curlSend()
+    private function curlSend ($method, $data, $url)
     {
-        $arguments = func_get_args();
-
-        $httpMethod = array_shift($arguments);
-
-        $data = array_shift($arguments);
-
-        $endPointUrl = array_shift($arguments);
 
         $curlHandle = $this->curlInit();
 
-        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $httpMethod);
-        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string)$data);
+        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string) $data);
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-Type: application/json'), $this->headers));
 
-        return $this->curlExec(
-            $curlHandle,
-            $endPointUrl
-        );
+        return $this->curlExec($curlHandle, $method, $url);
     }
+
     /**
      * Set the offset for GET requests
      * @param mixed $offset
@@ -325,7 +290,6 @@ class Request
         if (!ctype_digit($offset) && !is_int($offset)) {
             throw new \InvalidArgumentException('offset should be a number');
         }
-
         $this->offset = $offset;
     }
 
@@ -338,7 +302,6 @@ class Request
         if (!ctype_digit($limit) && !is_int($limit)) {
             throw new \InvalidArgumentException('limit should be a number');
         }
-
         $this->limit = $limit;
     }
 
@@ -350,10 +313,7 @@ class Request
     public function deleteApiKey($apikey)
     {
         $endPointUrl = $this->apiHost."/account/apikey/".$apikey;
-
-        $response = $this->curlDelete($endPointUrl);
-
-        return $response;
+        return $this->curlDelete($endPointUrl);
     }
 
     /**
@@ -364,10 +324,7 @@ class Request
     public function deleteTag($tag)
     {
         $endPointUrl = $this->apiHost."/account/tag/".$tag;
-
-        $response = $this->curlDelete($endPointUrl);
-
-        return $response;
+        return $this->curlDelete($endPointUrl);
     }
 
     /**
@@ -377,19 +334,8 @@ class Request
      * */
     public function deleteAccount()
     {
-        if (!isset($this->headers)) {
-            throw new Exception(
-                sprintf(
-                    'No child authentication set - cannot delete your own account.'
-                )
-            );
-        }
-
         $endPointUrl = $this->apiHost."/account/";
-
-        $response = $this->curlDelete($endPointUrl);
-
-        return $response;
+        return $this->curlDelete($endPointUrl);
     }
 
     /**
@@ -402,10 +348,7 @@ class Request
     public function getClientKey($uuid, $edition, $version)
     {
         $endPointUrl = $this->apiHost."/client/key/".$uuid."?edition=".$edition."&version=".$version;
-
-        $response = $this->curlGet($endPointUrl);
-
-        return $response;
+        return $this->curlGet($endPointUrl);
     }
 
     /**
@@ -504,12 +447,9 @@ class Request
      * */
     public function getScales(string $computerId)
     {
-        $endPointUrl = $this->apiHost."/computer/";
-        $endPointUrl.= $computerId;
-        $endPointUrl.= '/scales';
 
+        $endPointUrl = sprintf("%s/computer/%s/scales", $apiHost, $computerId);
         $response = $this->curlGet($endPointUrl);
-
 
         if ($response->getStatusCode() != '200') {
             throw new \RuntimeException(
@@ -521,7 +461,7 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse("PrintNode\Scale", json_decode($response->getContent()));
+        return Entity::makeFromResponse("PrintNode\\Entity\\Scale", json_decode($response->getContent()));
     }
 
     /**
@@ -530,8 +470,9 @@ class Request
      * @param string $printerIdSet OPTIONAL: set of printer ids only found in the set of computers.
      * @return Entity[]
      * */
-    public function getPrintersByComputers()
+    public function getPrintersByComputers($computerSet, $printerSet=null)
     {
+
         $arguments = func_get_args();
 
         if (count($arguments) > 2) {
@@ -579,7 +520,6 @@ class Request
 
         if (count($arguments) > 0) {
             $arguments = array_shift($arguments);
-
             if (!is_string($arguments)) {
                 throw new InvalidArgumentException(
                     sprintf(
@@ -589,16 +529,7 @@ class Request
                     )
                 );
             }
-            $endPointUrl = sprintf(
-                '%s/%s',
-                $endPointUrl,
-                $arguments
-            );
-        } else {
-            $endPointUrl = sprintf(
-                '%s',
-                $endPointUrl
-            );
+            $endPointUrl = sprintf('%s/%s', $endPointUrl, $arguments);
         }
 
         $response = $this->curlGet($endPointUrl);
@@ -645,7 +576,6 @@ class Request
             $entity = $entity->formatForPatch();
         }
 
-
         return $this->curlSend('PATCH', $entity, $endPointUrl);
     }
 
@@ -683,10 +613,10 @@ class Request
      * @param Entity $entity
      * @return Response
      */
-    public function put()
+    public function put(Entity $entity)
     {
-        $arguments = func_get_args();
 
+        $arguments = func_get_args();
         $entity = array_shift($arguments);
 
         if (!($entity instanceof Entity)) {
@@ -701,7 +631,7 @@ class Request
         $endPointUrl = $this->getEndPointUrl(get_class($entity));
 
         foreach ($arguments as $argument) {
-            $endPointUrl.= '/'.$argument;
+            $endPointUrl .= '/'.$argument;
         }
 
         return $this->curlSend('PUT', $entity, $endPointUrl);
@@ -717,7 +647,7 @@ class Request
         $endPointUrl = $this->getEndPointUrl(get_class($entity));
 
         if (method_exists($entity, 'endPointUrlArg')) {
-            $endPointUrl.= '/'.$entity->endPointUrlArg();
+            $endPointUrl .= '/'.$entity->endPointUrlArg();
         }
 
         return $this->curlDelete($endPointUrl);
