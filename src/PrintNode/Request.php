@@ -18,11 +18,13 @@ class Request
      * @var Credentials
      */
     private $credentials;
+
     /**
      * API url to use with the client
      * @var string
      * */
-    private $apiurl = "https://api.printnode.com";
+    private $apiurl = "https://apidev.printnode.com";
+
     /**
      * Header for child authentication
      * @var string[]

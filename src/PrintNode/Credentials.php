@@ -10,17 +10,20 @@ namespace PrintNode;
  */
 interface Credentials
 {
+
 	public function setChildAccountByCreatorRef($id);
 
 	public function setChildAccountByEmail($email);
 
 	public function setChildAccountById($creatorRef);
+
     /**
      * Convert object into a string
      * @param void
      * @return string
      */
     public function __toString();
+
     /**
      * Set property on object
      * @param mixed $propertyName
@@ -28,10 +31,12 @@ interface Credentials
      * @return void
      */
     public function __set($propertyName, $value);
+
     /**
      * Get property from object
      * @param mixed $propertyName
      * @return mixed
      */
     public function __get($propertyName);
+
 }

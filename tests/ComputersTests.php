@@ -1,15 +1,20 @@
 <?php
 
 include 'credentials.php';
+
+use PrintNode\Request;
+use PrintNode\Account;
+
 class RequestTest extends PHPUnit_Framework_TestCase
 {
 
 	protected $credentials;
 	protected $apikey = API_KEY;
 
-	public function createAccount(){
-		$request = new PrintNode\Request($this->credentials);
-		$account = new PrintNode\Account();
+	public function createAccount() {
+
+		$request = new Request($this->credentials);
+		$account = new Account();
 		$account->Account = array(
 			"firstname" => "AFirstName",
 			"lastname" => "ALastName",
@@ -40,24 +45,24 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	}
 
 	public function testApiKeyAuth(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$this->assertInstanceOf('PrintNode\Whoami',$request->getWhoami());
 	}
 	/**
 	* @depends testApiKeyAuth
 	*
-	* */
+	*/
 	public function testComputers(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$this->assertInstanceOf('PrintNode\Computer',$request->getComputers()[0]);
 	}
 
 	/**
 	* @depends testComputers
 	*
-	* */
+	*/
 	public function testPrinters(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$printers = $request->getPrinters();
 		$this->assertInstanceOf('PrintNode\Printer',$printers[0]);
 	}
@@ -65,9 +70,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	/**
 	* @depends testPrinters
 	*
-	* */
+	*/
 	public function testPrintJobs(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$printjobs = $request->getPrintJobs();
 		$this->assertInstanceOf('PrintNode\PrintJob',$printjobs[0]);
 	}
@@ -75,9 +80,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	/**
 	* @depends testPrintJobs
 	*
-	* */
+	**/
 	public function testPrintJobStates(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$printjobstates = $request->getPrintJobStates();
 		$this->assertInstanceOf('PrintNode\State',$printjobstates[0][0]);
 	}
@@ -86,9 +91,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	* @depends testComputers
 	* @depends testPrinters
 	* @depends testPrintJobs
-	* */
+	**/
 	public function testPrintingCombination(){
-		$request = new PrintNode\Request($this->credentials);
+		$request = new Request($this->credentials);
 		$computers = $request->getComputers();
 		$PrintersByComputers = $request->getPrintersByComputers($computers[0]->id);
 		$PrintJobsByPrinters = $request->getPrintJobsByPrinters($PrintersByComputers[0]->id);
@@ -99,19 +104,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	/**
 	* @depends testPrintJobs
 	*
-	* */
+	**/
 	public function testPrintJobsPost(){
-		$request = new PrintNode\Request($this->credentials);
+
+		$pdfFile = file_get_contents(__DIR__.'/assets/a4_portrait.pdf');
+		$request = new Request($this->credentials);
 		$printers = $request->getPrinters();
 		$printJob = new PrintNode\PrintJob();
 		$printJob->printer = $printers[0];
 		$printJob->contentType = 'pdf_base64';
-		$printJob->content = base64_encode(file_get_contents('a4_portrait.pdf'));
+		$printJob->content = base64_encode($pdfFile);
 		$printJob->source = 'testing print';
 		$printJob->title = 'Test Printjob for PHP API Tests';
 		$response = $request->post($printJob);
 		$this->assertInternalType('int',$response->GetDecodedContent());
 	}
-
 
 }

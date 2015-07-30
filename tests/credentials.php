@@ -1,3 +1,3 @@
 <?php
-define("API_KEY","YOUR_API_KEY");
-?>
+
+define("API_KEY","god");
