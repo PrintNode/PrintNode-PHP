@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * Printer
@@ -30,7 +32,7 @@ class Printer extends Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'computer' => 'PrintNode\Computer'
+            'computer' => 'PrintNode\Entity\Computer',
         );
     }
 }

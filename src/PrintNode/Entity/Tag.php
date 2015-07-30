@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * Tag
@@ -27,7 +29,6 @@ class Tag extends Entity
 
     public function foreignKeyEntityMap()
     {
-        return array(
-        );
+        return array();
     }
 }

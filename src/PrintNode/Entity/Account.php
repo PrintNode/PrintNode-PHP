@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * Account
@@ -24,7 +26,6 @@ class Account extends Entity
 
     public function foreignKeyEntityMap()
     {
-        return array(
-        );
+        return array();
     }
 }

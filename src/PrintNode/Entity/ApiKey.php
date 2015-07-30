@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * ApiKey
@@ -20,7 +22,6 @@ class ApiKey extends Entity
 
     public function foreignKeyEntityMap()
     {
-        return array(
-        );
+        return array();
     }
 }

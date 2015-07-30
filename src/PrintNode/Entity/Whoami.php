@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * Whoami
@@ -27,6 +29,7 @@ namespace PrintNode;
  */
 class Whoami extends Entity
 {
+
     protected $id;
     protected $firstname;
     protected $lastname;
@@ -49,4 +52,5 @@ class Whoami extends Entity
     {
         return array();
     }
+
 }

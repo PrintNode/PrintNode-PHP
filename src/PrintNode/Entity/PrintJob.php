@@ -1,6 +1,8 @@
 <?php
 
-namespace PrintNode;
+namespace PrintNode\Entity;
+
+use PrintNode\Entity;
 
 /**
  * PrintJob
@@ -33,7 +35,7 @@ class PrintJob extends Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'printer' => 'PrintNode\Printer'
+            'printer' => 'PrintNode\Entity\Printer'
         );
     }
 }

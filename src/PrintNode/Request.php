@@ -48,15 +48,16 @@ class Request
      */
 
     private $endPointUrls = array(
-        'PrintNode\Client' => '/download/clients',
-        'PrintNode\Download' => '/download/client',
-        'PrintNode\ApiKey' => '/account/apikey',
-        'PrintNode\Account' => '/account',
-        'PrintNode\Tag' => '/account/tag',
-        'PrintNode\Whoami' => '/whoami',
-        'PrintNode\Computer' => '/computers',
-        'PrintNode\Printer' => '/printers',
-        'PrintNode\PrintJob' => '/printjobs',
+        'PrintNode\\Entity\\Account' => '/account',
+        'PrintNode\\Entity\\ApiKey' => '/account/apikey',
+        'PrintNode\\Entity\\Client' => '/download/clients',
+        'PrintNode\\Entity\\Computer' => '/computers',
+        'PrintNode\\Entity\\Download' => '/download/client',
+        'PrintNode\\Entity\\Printer' => '/printers',
+        'PrintNode\\Entity\\PrintJob' => '/printjobs',
+        'PrintNode\\Entity\\States' => '/printjob/states',
+        'PrintNode\\Entity\\Tag' => '/account/tag',
+        'PrintNode\\Entity\\Whoami' => '/whoami',
     );
 
     /**
@@ -64,15 +65,16 @@ class Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Clients' => 'PrintNode\Client',
-        'Downloads' => 'PrintNode\Download',
-        'ApiKeys' => 'PrintNode\ApiKey',
-        'Account' => 'PrintNode\Account',
-        'Tags' => 'PrintNode\Tag',
-        'Whoami' => 'PrintNode\Whoami',
-        'Computers' => 'PrintNode\Computer',
-        'Printers' => 'PrintNode\Printer',
-        'PrintJobs' => 'PrintNode\PrintJob',
+        'Account' => 'PrintNode\\Entity\\Account',
+        'ApiKeys' => 'PrintNode\\Entity\\ApiKey',
+        'Clients' => 'PrintNode\\Entity\\Client',
+        'Computers' => 'PrintNode\\Entity\\Computer',
+        'Downloads' => 'PrintNode\\Entity\\Download',
+        'Printers' => 'PrintNode\\Entity\\Printer',
+        'PrintJobs' => 'PrintNode\\Entity\\PrintJob',
+        'PrintJobStates' => 'PrintNode\\Entity\\States',
+        'Tags' => 'PrintNode\\Entity\\Tag',
+        'Whoami' => 'PrintNode\\Entity\\Whoami',
     );
 
     /**
@@ -408,8 +410,9 @@ class Request
      * @param string $printjobId OPTIONAL:if unset gives states relative to all printjobs.
      * @return Entity[]
      * */
-    public function getPrintJobStates()
+    public function getPrintJobStates($printJobIds = null)
     {
+
         $arguments = func_get_args();
 
         if (count($arguments) > 1) {
@@ -441,7 +444,10 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse("PrintNode\State", json_decode($response->getContent()));
+        return Entity::makeFromResponse(
+            "PrintNode\\Entity\\PrintJobState",
+            json_decode($response->getContent())
+        );
     }
 
 
@@ -485,7 +491,7 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse("PrintNode\PrintJob", json_decode($response->getContent()));
+        return Entity::makeFromResponse("PrintNode\\Entity\\PrintJob", json_decode($response->getContent()));
     }
 
     /**
@@ -534,13 +540,11 @@ class Request
         }
 
         $endPointUrl = $this->apiurl."/computers/";
-
         $arg_1 = array_shift($arguments);
-
-        $endPointUrl.= $arg_1.'/printers/';
+        $endPointUrl .= $arg_1.'/printers/';
 
         foreach ($arguments as $argument) {
-            $endPointUrl.= $argument;
+            $endPointUrl .= $argument;
         }
 
         $response = $this->curlGet($endPointUrl);
@@ -555,7 +559,7 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse("PrintNode\Printer", json_decode($response->getContent()));
+        return Entity::makeFromResponse("PrintNode\\Entity\\Printer", json_decode($response->getContent()));
     }
 
     /**
@@ -566,8 +570,8 @@ class Request
      */
     public function __call($methodName, $arguments)
     {
-        $entityName = $this->getEntityName($methodName);
 
+        $entityName = $this->getEntityName($methodName);
         $endPointUrl = $this->getEndPointUrl($entityName);
 
         if (count($arguments) > 0) {
@@ -582,7 +586,6 @@ class Request
                     )
                 );
             }
-
             $endPointUrl = sprintf(
                 '%s/%s',
                 $endPointUrl,
@@ -607,7 +610,10 @@ class Request
             );
         }
 
-        return Entity::makeFromResponse($entityName, json_decode($response->getContent()));
+        return Entity::makeFromResponse(
+            $entityName,
+            json_decode($response->getContent())
+        );
     }
 
     /**
