@@ -9,6 +9,13 @@ namespace PrintNode;
  */
 class Response
 {
+
+    /**
+     * Original Request HTTP Method
+     * @var string
+     */
+    private $method;
+
     /**
      * Original Request URL
      * @var string
@@ -29,16 +36,38 @@ class Response
 
     /**
      * Constructor
+     * @param mixed $method
      * @param mixed $url
      * @param mixed $content
      * @param mixed $headers
      * @return Response
      */
-    public function __construct($url, $content, array $headers)
+    public function __construct($method, $url, $content, array $headers)
     {
+        $this->method = $method;
         $this->url = $url;
         $this->headers = $headers;
         $this->content = $content;
+    }
+
+    /**
+     * Get request method
+     * @param void
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Get Request URL
+     * @param void
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
     }
 
     /**
@@ -72,13 +101,14 @@ class Response
         // have error?
         if (null === $decoded and JSON_ERROR_NONE !== $lastError = json_last_error()) {
             $message = sprintf(<<<TEXT
-PrintNode API did not return valid JSON for request %s.
+PrintNode API did not return valid JSON for request %s %s.
 
 --- BEGIN SERVER RESPONSE ---
 %s
 --- END SERVER RESPONSE ---
 TEXT
-                , $this->url,
+                , $this->method,
+                $this->url,
                 $this->content
             );
             throw new \RuntimeException($message);

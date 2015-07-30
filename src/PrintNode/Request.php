@@ -212,7 +212,7 @@ class Request
 
         $headers = explode("\r\n", array_pop($response_parts));
 
-        return new Response($url, $content, $headers);
+        return new Response($method, $url, $content, $headers);
     }
 
     /**
