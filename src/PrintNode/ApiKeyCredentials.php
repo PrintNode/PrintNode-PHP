@@ -5,6 +5,29 @@ namespace PrintNode;
 class ApiKeyCredentials implements Credentials
 {
     private $apikey;
+	private $child_header = array();
+	private $other_headers = array();
+
+
+	public function setChildAccountById($id)
+	{
+		$this->child_header = array("X-Child-Account-By-Id: ".$id);
+	}
+
+	public function setChildAccountByEmail($email)
+	{
+		$this->child_header = array("X-Child-Account-By-Email: ".$email);
+	}
+
+	public function setChildAccountByCreatorRef($creatorRef)
+	{
+		$this->child_header = array("X-Child-Account-By-CreatorRef: ".$creatorRef);
+	}
+
+	public function getHeaders()
+	{
+		return array_merge($this->child_header,$this->other_headers);
+	}
 
     public function __construct($apikey)
 	{

@@ -10,7 +10,11 @@ namespace PrintNode;
  */
 interface Credentials
 {
+	public function setChildAccountByCreatorRef($id);
 
+	public function setChildAccountByEmail($email);
+
+	public function setChildAccountById($creatorRef);
     /**
      * Convert object into a string
      * @param void

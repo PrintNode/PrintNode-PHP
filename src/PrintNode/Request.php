@@ -27,7 +27,7 @@ class Request
      * Header for child authentication
      * @var string[]
      * */
-    private $childauth = array();
+    private $headers = array();
     /**
      * Offset query argument on GET requests
      * @var int
@@ -89,6 +89,8 @@ class Request
         }
 
         $this->credentials = $credentials;
+
+		$this->headers = $credentials->getHeaders();
 
         if ($endPointUrls) {
             $this->endPointUrls = $endPointUrls;
@@ -230,7 +232,7 @@ class Request
     private function curlGet($endPointUrl)
     {
         $curlHandle = $this->curlInit();
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->childauth);
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
 
         return $this->curlExec(
             $curlHandle,
@@ -243,7 +245,7 @@ class Request
         $curlHandle = $this->curlInit();
 
         curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->childauth);
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
 
         return $this->curlExec(
             $curlHandle,
@@ -300,7 +302,7 @@ class Request
 
         curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string)$data);
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-Type: application/json'), $this->childauth));
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-Type: application/json'), $this->headers));
 
         return $this->curlExec(
             $curlHandle,
@@ -363,12 +365,12 @@ class Request
 
     /**
      * Delete a child account
-     * MUST have $this->childauth set to run.
+     * MUST have $this->headers set to run.
      * @return Response
      * */
     public function deleteAccount()
     {
-        if (!isset($this->childauth)) {
+        if (!isset($this->headers)) {
             throw new Exception(
                 sprintf(
                     'No child authentication set - cannot delete your own account.'
@@ -710,18 +712,4 @@ class Request
         return $this->curlDelete($endPointUrl);
     }
 
-    public function setChildAccountById($id)
-    {
-        $this->childauth = array("X-Child-Account-By-Id: ".$id);
-    }
-
-    public function setChildAccountByEmail($email)
-    {
-        $this->childauth = array("X-Child-Account-By-Email: ".$email);
-    }
-
-    public function setChildAccountByCreatorRef($creatorRef)
-    {
-        $this->childauth = array("X-Child-Account-By-CreatorRef: ".$creatorRef);
-    }
 }

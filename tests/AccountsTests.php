@@ -17,7 +17,7 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 	protected function setUp(){
 		$this->credentials = new PrintNode\ApiKeyCredentials($this->apikey);
 		$ch = curl_init("https://apidev.printnode.com/test/data/generate");
-		curl_setopt($ch,CURLOPT_USERPWD,(string)$this->credentials);
+		curl_setopt($ch, CURLOPT_USERPWD,(string)$this->credentials);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
 		curl_exec($ch);
 		curl_close($ch);
@@ -38,8 +38,8 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 		curl_setopt($ch,CURLOPT_CUSTOMREQUEST, 'DELETE');
 		curl_exec($ch);
 		curl_close($ch);
+		$this->credentials->setChildAccountByEmail("email@emailprovider.com");
 		$request = new PrintNode\Request($this->credentials);
-		$request->setChildAccountByEmail("email@emailprovider.com");
 		$request->deleteAccount();
 		$this->account = null;
 		$this->credentials = null;
@@ -78,7 +78,8 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 		$request = new PrintNode\Request($this->credentials);
 		$response = $request->post($this->account);
 		$this->assertEquals("AFirstName",$response->GetDecodedContent()["Account"]["firstname"]);
-		$request->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$this->credentials->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$request = new PrintNode\Request($this->credentials);
 		$response = $request->DeleteAccount();
 		$this->assertEquals(true,$response->GetDecodedContent());
 	}
@@ -89,7 +90,8 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 	public function testModifyAccount(){
 		$request = new PrintNode\Request($this->credentials);
 		$response = $request->post($this->account);
-		$request->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$this->credentials->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$request = new PrintNode\Request($this->credentials);
 		$account = new PrintNode\Account();
 		$account->Account  = array(
 			"firstname" => "ANewFirstName",
@@ -108,7 +110,8 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 	public function testApiKey(){
 		$request = new PrintNode\Request($this->credentials);
 		$response = $request->post($this->account);
-		$request->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$this->credentials->setChildAccountById($response->GetDecodedContent()["Account"]["id"]);
+		$request = new PrintNode\Request($this->credentials);
 		$ApiKey = new PrintNode\ApiKey();
 		$ApiKey->description = "testing";
 		$response = $request->post($ApiKey);
