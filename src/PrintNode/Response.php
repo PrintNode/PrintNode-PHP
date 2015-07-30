@@ -117,6 +117,16 @@ TEXT
     }
 
     /**
+     * Return <true> if response code is 2xx
+     * @return boolean
+     */
+    public function isOK ()
+    {
+        $statusCode = $this->getStatusCode();
+        return $statusCode >= 200 and $statusCode < 300;
+    }
+
+    /**
      * Get HTTP status code
      * @param void
      * @return string

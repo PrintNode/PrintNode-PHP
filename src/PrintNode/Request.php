@@ -380,7 +380,7 @@ class Request
 
         $response = $this->curlGet($endPointUrl);
 
-        if ($response->getStatusCode() != 200) {
+        if (!$response->isOK()) {
             throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
@@ -427,7 +427,7 @@ class Request
 
         $response = $this->curlGet($endPointUrl);
 
-        if ($response->getStatusCode() != 200) {
+        if (!$response->isOK()) {
             throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
@@ -451,7 +451,7 @@ class Request
         $endPointUrl = sprintf("%s/computer/%s/scales", $apiHost, $computerId);
         $response = $this->curlGet($endPointUrl);
 
-        if ($response->getStatusCode() != 200) {
+        if (!$response->isOK()) {
             throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
@@ -493,7 +493,7 @@ class Request
 
         $response = $this->curlGet($endPointUrl);
 
-        if ($response->getStatusCode() != 200) {
+        if (!$response->isOK()) {
             throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
@@ -534,7 +534,7 @@ class Request
 
         $response = $this->curlGet($endPointUrl);
 
-        if ($response->getStatusCode() != 200) {
+        if (!$response->isOK()) {
             throw new \RuntimeException(
                 sprintf(
                     'HTTP Error (%d): %s',
