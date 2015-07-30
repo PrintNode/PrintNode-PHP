@@ -155,7 +155,7 @@ TEXT
         }
 
         return array(
-            'code' => $matchesArray[2],
+            'code' => (int) $matchesArray[2],
             'message' => $matchesArray[3],
         );
     }
