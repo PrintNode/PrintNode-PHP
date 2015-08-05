@@ -359,35 +359,16 @@ class Request
     public function getPrintJobStates($printJobIds = null)
     {
 
-        $arguments = func_get_args();
-
-        if (count($arguments) > 1) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Too many arguments given to getPrintJobsStates.'
-                )
-            );
+        $endPointUrl = $this->apiHost."/printjobs";
+        if ($printJobIds) {
+            $endPointUrl .= "/".$printjobIds;
         }
-
-        $endPointUrl = $this->apiHost."/printjobs/";
-
-        if (count($arguments) == 0) {
-            $endPointUrl.= 'states/';
-        } else {
-            $arg_1 = array_shift($arguments);
-            $endPointUrl.= $arg_1.'/states/';
-        }
+        $endPointUrl .= '/states';
 
         $response = $this->curlGet($endPointUrl);
 
         if (!$response->isOK()) {
-            throw new \RuntimeException(
-                sprintf(
-                    'HTTP Error (%d): %s',
-                    $response->getStatusCode(),
-                    $response->getStatusMessage()
-                )
-            );
+            throw $response->getHTTPException();
         }
 
         return Entity::makeFromResponse(
@@ -403,40 +384,22 @@ class Request
      * @param string $printJobId OPTIONAL: set of PrintJob ids relative to the printer.
      * @return Entity[]
      * */
-    public function getPrintJobsByPrinters()
+    public function getPrintJobsByPrinters($printerIdSet = null, $printJobIdSet = null)
     {
-        $arguments = func_get_args();
 
-        if (count($arguments) > 2) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Too many arguments given to getPrintJobsByPrinters.'
-                )
-            );
+        $url = $this->apiHost;
+        if ($printerIdSet) {
+            $url .= "/printers/{$printerIdSet}";
+        }
+        $url .= '/printjobs';
+        if ($printJobIdSet) {
+            $url .= "/{$printerIdSet}";
         }
 
-        $endPointUrl = $this->apiHost."/printers/";
-
-        $arg_1 = array_shift($arguments);
-
-        $endPointUrl.= $arg_1.'/printjobs/';
-
-        foreach ($arguments as $argument) {
-            $endPointUrl.= $argument;
-        }
-
-        $response = $this->curlGet($endPointUrl);
-
+        $response = $this->curlGet($url);
         if (!$response->isOK()) {
-            throw new \RuntimeException(
-                sprintf(
-                    'HTTP Error (%d): %s',
-                    $response->getStatusCode(),
-                    $response->getStatusMessage()
-                )
-            );
+            throw $response->getHTTPException();
         }
-
         return Entity::makeFromResponse("PrintNode\\Entity\\PrintJob", json_decode($response->getContent()));
     }
 
@@ -452,13 +415,7 @@ class Request
         $response = $this->curlGet($endPointUrl);
 
         if (!$response->isOK()) {
-            throw new \RuntimeException(
-                sprintf(
-                    'HTTP Error (%d): %s',
-                    $response->getStatusCode(),
-                    $response->getStatusMessage()
-                )
-            );
+            throw $response->getHTTPException();
         }
 
         return Entity::makeFromResponse("PrintNode\\Entity\\Scale", json_decode($response->getContent()));
@@ -494,13 +451,7 @@ class Request
         $response = $this->curlGet($endPointUrl);
 
         if (!$response->isOK()) {
-            throw new \RuntimeException(
-                sprintf(
-                    'HTTP Error (%d): %s',
-                    $response->getStatusCode(),
-                    $response->getStatusMessage()
-                )
-            );
+            throw $response->getHTTPException();
         }
 
         return Entity::makeFromResponse("PrintNode\\Entity\\Printer", json_decode($response->getContent()));
@@ -535,13 +486,7 @@ class Request
         $response = $this->curlGet($endPointUrl);
 
         if (!$response->isOK()) {
-            throw new \RuntimeException(
-                sprintf(
-                    'HTTP Error (%d): %s',
-                    $response->getStatusCode(),
-                    $response->getStatusMessage()
-                )
-            );
+            throw $response->getHTTPException();
         }
 
         return Entity::makeFromResponse(
