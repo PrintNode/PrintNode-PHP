@@ -173,7 +173,7 @@ class Request
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
         curl_setopt($curlHandle, CURLOPT_HEADER, true);
-        curl_setopt($curlHandle, CURLOPT_USERPWD, (string) $this->credentials);
+#        curl_setopt($curlHandle, CURLOPT_USERPWD, (string) $this->credentials);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
 		curl_setopt($curlHandle, CURLOPT_TIMEOUT, 4);

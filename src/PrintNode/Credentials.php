@@ -5,38 +5,72 @@ namespace PrintNode;
 /**
  * Credentials
  *
- * Credential store used by Request
- * when communicating with API server.
+ * @desc Used Request when communicating with API server.
  */
-interface Credentials
+abstract class Credentials
 {
 
-	public function setChildAccountByCreatorRef($id);
-
-	public function setChildAccountByEmail($email);
-
-	public function setChildAccountById($creatorRef);
+    /**
+     * Stores the headers which will be sent to the server
+     * @var array
+     */
+    protected $headers = array();
 
     /**
-     * Convert object into a string
-     * @param void
-     * @return string
+     * Child account option keys to header names
+     * @var array
      */
-    public function __toString();
+    private static $allowedChildAccountOptions = array(
+        'id' => 'X-Child-Account-By-Id',
+        'email' => 'X-Child-Account-By-Email',
+        'creatorRef' => 'X-Child-Account-By-CreatorRef',
+    );
 
     /**
-     * Set property on object
-     * @param mixed $propertyName
-     * @param mixed $value
-     * @return void
+     * Set a header for a request
+     * @return PrintNode\Credentials
      */
-    public function __set($propertyName, $value);
+	protected function setHeader($name, $value)
+    {
+        $this->headers[] = sprintf('%s: %s', $name, $value);
+        return $this;
+    }
 
     /**
-     * Get property from object
-     * @param mixed $propertyName
-     * @return mixed
+     * Set a BasicAuthe style authorisation header
      */
-    public function __get($propertyName);
+    protected function setBasicAuthHeader ($username = '', $password = '')
+    {
+        $hash = base64_encode(sprintf('%s:%s', $username, $password));
+        $this->setHeader('Authorization', "Basic {$hash}");
+    }
+
+    /**
+     * Convert a passed childAccountOptionsHeader into HTTP Headers
+     */
+    protected function parseChildAccountOptions (array $childAccountOptions)
+    {
+        foreach ($childAccountOptions as $key => $value) {
+            if (isset(self::$allowedChildAccountOptions[$key])) {
+                $this->setHeader(self::$allowedChildAccountOptions[$key], $value);
+            } else {
+                $allowedValues = array_keys(self::$allowedChildAccountOptions);
+                throw new \RunTimeException(
+                    sprintf(
+                        "Unknown child account option header. Allowed options are %s.",
+                        implode(', ', $allowedValues)
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * Get a set of headers for the request
+     */
+    public function getHeaders ()
+    {
+        return $this->headers;
+    }
 
 }

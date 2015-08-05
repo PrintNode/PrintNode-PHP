@@ -13,9 +13,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
 {
 
 	protected $credentials;
-	protected $apikey = API_KEY;
 
-	public function createAccount() {
+	public function __construct()
+	{
+		$this->credentials = new PrintNode\Credentials\ApiKey(API_KEY);
+	}
+
+	public function createAccount()
+	{
 
 		$request = new Request($this->credentials);
 		$account = new Account();
@@ -30,9 +35,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	}
 
 	protected function setUp(){
-		$this->credentials = new PrintNode\ApiKeyCredentials($this->apikey);
 		$ch = curl_init("https://apidev.printnode.com/test/data/generate");
-		curl_setopt($ch, CURLOPT_USERPWD, (string) $this->credentials);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->credentials->getHeaders());
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_exec($ch);
 		curl_close($ch);
@@ -40,7 +44,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
 	protected function tearDown(){
 		$ch = curl_init("https://apidev.printnode.com/test/data/generate");
-		curl_setopt($ch, CURLOPT_USERPWD, (string)$this->credentials);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->credentials->getHeaders());
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 		curl_exec($ch);
