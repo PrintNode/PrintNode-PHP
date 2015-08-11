@@ -42,9 +42,4 @@ class Client extends Entity
     {
         return (string) $this->id;
     }
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

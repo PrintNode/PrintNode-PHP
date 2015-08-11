@@ -34,11 +34,4 @@ class Computer extends Entity
     protected $createTimestamp;
     protected $state;
 
-    /**
-     * @inheritdoc
-     */
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

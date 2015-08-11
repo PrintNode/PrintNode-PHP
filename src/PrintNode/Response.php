@@ -2,6 +2,8 @@
 
 namespace PrintNode;
 
+use PrintNode\HTTPException;
+
 /**
  * Response
  *
@@ -92,12 +94,13 @@ class Response
 
     /**
      * Get Response body decoded into an array
+     *
      * @param void
      * @return mixed
      */
-    public function getDecodedContent()
+    public function getDecodedContent($asArray = true)
     {
-        $decoded = json_decode($this->content, true);
+        $decoded = json_decode($this->content, (bool) $asArray);
         // have error?
         if (null === $decoded and JSON_ERROR_NONE !== $lastError = json_last_error()) {
             $message = sprintf(<<<TEXT
@@ -131,14 +134,11 @@ TEXT
         if ($this->isOK()) {
             return new \RuntimeException("HTTP response {$this->getStatusCode()}. No HTTPException to throw");
         }
-        return new \RuntimeException(
-            sprintf(
-                '%s %s - HTTP Error (%d): %s',
-                $this->getMethod(),
-                $this->getUrl(),
-                $this->getStatusCode(),
-                $this->getStatusMessage()
-            )
+        return new HTTPException(
+            $this->getMethod(),
+            $this->getUrl(),
+            $this->getStatusCode(),
+            $this->getStatusMessage()
         );
     }
 
@@ -180,9 +180,16 @@ TEXT
             throw new \RuntimeException('Could not determine HTTP status from API response');
         }
 
+        try {
+            $response = $this->getDecodedContent();
+        } catch (\RuntimeException $exception) {
+            $message = $matchesArray[3];
+        }
+
+        // human readable exceptions
         return array(
             'code' => (int) $matchesArray[2],
-            'message' => $matchesArray[3],
+            'message' => isset($response['message']) ? $response['message'] : $matchesArray[3],
         );
     }
 

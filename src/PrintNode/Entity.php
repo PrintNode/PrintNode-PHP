@@ -2,19 +2,6 @@
 
 namespace PrintNode;
 
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\ApiKey;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-# use PrintNode\Entity\Account;
-
-
 /**
  * Entity
  *
@@ -22,6 +9,7 @@ namespace PrintNode;
  */
 abstract class Entity implements EntityInterface
 {
+
     /**
      * Recursively cast an object into an array.
      * @param mixed $object
@@ -44,11 +32,12 @@ abstract class Entity implements EntityInterface
 
     /**
      * Map array of data to an entity
+     *
      * @param mixed $entityName
      * @param mixed $data
      * @return Entity
      */
-    private static function mapDataToEntity($entityName, \stdClass $data)
+    public static function mapDataToEntity($entityName, \stdClass $data)
     {
 
         $entity = new $entityName();
@@ -110,6 +99,17 @@ abstract class Entity implements EntityInterface
     public function __toString()
     {
         return json_encode($this->toArray());
+    }
+
+    /**
+     * When populating a entity and properties reference other entities
+     * put the references in here. See, PrintJob for example
+     *
+     * @return array
+     */
+    public function foreignKeyEntityMap()
+    {
+        return array();
     }
 
     /**
@@ -202,6 +202,7 @@ abstract class Entity implements EntityInterface
 
     /**
      * Make an array of specified entity from a Response
+     *
      * @param mixed $entityName
      * @param Response $response
      * @return Entity[]
@@ -222,4 +223,5 @@ abstract class Entity implements EntityInterface
 
         return $output;
     }
+
 }

@@ -29,7 +29,6 @@ use PrintNode\Entity;
  */
 class Whoami extends Entity
 {
-
     protected $id;
     protected $firstname;
     protected $lastname;
@@ -47,10 +46,4 @@ class Whoami extends Entity
     protected $ApiKeys;
     protected $state;
     protected $permissions;
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
-
 }

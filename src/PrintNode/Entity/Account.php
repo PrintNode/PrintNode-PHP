@@ -26,6 +26,8 @@ class Account extends Entity
 
     public function foreignKeyEntityMap()
     {
-        return array();
+        return array(
+            'printer' => 'PrintNode\\Entity\\Whoami'
+        );
     }
 }

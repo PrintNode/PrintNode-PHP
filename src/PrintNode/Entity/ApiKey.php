@@ -19,9 +19,4 @@ class ApiKey extends Entity
     {
         return $this->description;
     }
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

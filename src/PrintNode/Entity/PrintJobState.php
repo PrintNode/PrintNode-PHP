@@ -26,9 +26,4 @@ class PrintJobState extends Entity
     protected $clientVersion;
     protected $createTimestamp;
     protected $age;
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

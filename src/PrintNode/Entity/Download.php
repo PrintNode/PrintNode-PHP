@@ -30,9 +30,4 @@ class Download extends Entity
     protected $sha1;
     protected $releaseTimestamp;
     protected $url;
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

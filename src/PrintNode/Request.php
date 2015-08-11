@@ -19,12 +19,6 @@ class Request
 {
 
     /**
-     * Credentials to use when communicating with API
-     * @var Credentials
-     */
-    private $credentials;
-
-    /**
      * API url to use with the client
      * @var string
      * */
@@ -34,19 +28,19 @@ class Request
      * Header for child authentication
      * @var string[]
      * */
-    private $headers = array();
+    protected $headers = array();
 
     /**
      * Offset query argument on GET requests
      * @var int
      */
-    private $offset = 0;
+    protected $offset = 0;
 
     /**
      * Limit query argument on GET requests
      * @var mixed
      */
-    private $limit = 10;
+    protected $limit = 10;
 
     /**
      * Map entity names to API URLs
@@ -79,12 +73,14 @@ class Request
         'Printers' => 'PrintNode\\Entity\\Printer',
         'PrintJobs' => 'PrintNode\\Entity\\PrintJob',
         'PrintJobStates' => 'PrintNode\\Entity\\States',
+        'Scale' => 'PrintNode\\Entity\\Scale',
         'Tags' => 'PrintNode\\Entity\\Tag',
         'Whoami' => 'PrintNode\\Entity\\Whoami',
     );
 
     /**
      * Constructor
+     *
      * @param Credentials $credentials
      * @param mixed $endPointUrls
      * @param mixed $methodNameEntityMap
@@ -95,7 +91,6 @@ class Request
     public function __construct(Credentials $credentials, $apiHost = "https://apidev.printnode.com", $endPointUrls = array(), array $methodNameEntityMap = array(), $offset = 0, $limit = 10)
     {
 
-        $this->credentials = $credentials;
         $this->apiHost = $apiHost;
 
         if ($endPointUrls) {
@@ -112,7 +107,93 @@ class Request
     }
 
     /**
+     * Execute cURL request using the specified API EndPoint
+     *
+     * @param mixed $curlHandle
+     * @param mixed $endPointUrl
+     * @return Response
+     */
+    protected function curlExec ($method, $url, $headers = array(), $body = null)
+    {
+
+        $curlHandle = curl_init();
+
+        curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
+        curl_setopt($curlHandle, CURLOPT_HEADER, true);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($curlHandle, CURLOPT_TIMEOUT, 4);
+        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($curlHandle, CURLOPT_URL, $url);
+
+        # set http headers
+        if ($headers) {
+            $headers = array_merge($headers, $this->headers);
+        } else {
+            $headers = $this->headers;
+        }
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $headers);
+
+        # post data?
+        if ($body) {
+            curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string) $body);
+        }
+
+
+        if (false === $response = @curl_exec($curlHandle)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'cURL Error (%d): %s',
+                    curl_errno($curlHandle),
+                    curl_error($curlHandle)
+                )
+            );
+        }
+
+        curl_close($curlHandle);
+        $response_parts = explode("\r\n\r\n", $response);
+        $content = array_pop($response_parts);
+        $headers = explode("\r\n", array_pop($response_parts));
+
+        return new Response($method, $url, $content, $headers);
+    }
+
+    /**
+     * Apply offset and limit to a end point URL.
+     *
+     * @param mixed $endPointUrl
+     * @return string
+     */
+    protected function applyOffsetLimit ($url)
+    {
+        $urlArray = parse_url($url);
+
+        if (!isset($urlArray['query'])) {
+            $urlArray['query'] = null;
+        }
+
+        parse_str($urlArray['query'], $queryStringArray);
+
+        $queryStringArray['offset'] = $this->offset;
+        $queryStringArray['limit'] = min(max(1, $this->limit), 500);
+
+        $urlArray['query'] = http_build_query($queryStringArray, null, '&');
+
+        $url = (isset($urlArray['scheme'])) ? "{$urlArray['scheme']}://" : '';
+        $url .= (isset($urlArray['host'])) ? "{$urlArray['host']}" : '';
+        $url .= (isset($urlArray['port'])) ? ":{$urlArray['port']}" : '';
+        $url .= (isset($urlArray['path'])) ? "{$urlArray['path']}" : '';
+        $url .= (isset($urlArray['query'])) ? "?{$urlArray['query']}" : '';
+
+        return $url;
+    }
+
+    /**
      * Given a Entity return a api endpoint for that entity
+     *
      * @param String
      * @return String
      */
@@ -131,6 +212,7 @@ class Request
 
     /**
      * Get entity name from __call method name
+     *
      * @param mixed $methodName
      * @return string
      */
@@ -160,128 +242,6 @@ class Request
     }
 
     /**
-     * Initialise cURL with the options we need
-     * to communicate successfully with API URL.
-     * @param void
-     * @return resource
-     */
-    private function curlInit ()
-    {
-        $curlHandle = curl_init();
-
-        curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
-        curl_setopt($curlHandle, CURLOPT_HEADER, true);
-#        curl_setopt($curlHandle, CURLOPT_USERPWD, (string) $this->credentials);
-        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($curlHandle, CURLOPT_TIMEOUT, 4);
-        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, false);
-
-        return $curlHandle;
-    }
-
-    /**
-     * Execute cURL request using the specified API EndPoint
-     * @param mixed $curlHandle
-     * @param mixed $endPointUrl
-     * @return Response
-     */
-    private function curlExec ($curlHandle, $method, $url)
-    {
-
-        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($curlHandle, CURLOPT_URL, $url);
-
-        if (false === $response = @curl_exec($curlHandle)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'cURL Error (%d): %s',
-                    curl_errno($curlHandle),
-                    curl_error($curlHandle)
-                )
-            );
-        }
-
-		curl_close($curlHandle);
-
-        $response_parts = explode("\r\n\r\n", $response);
-
-        $content = array_pop($response_parts);
-
-        $headers = explode("\r\n", array_pop($response_parts));
-
-        return new Response($method, $url, $content, $headers);
-    }
-
-    /**
-     * Make a GET request using cURL
-     * @param mixed $endPointUrl
-     * @return Response
-     */
-    private function curlGet ($url)
-    {
-        $curlHandle = $this->curlInit();
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
-        return $this->curlExec($curlHandle, 'GET', $url);
-    }
-
-    private function curlDelete($url)
-    {
-        $curlHandle = $this->curlInit();
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->headers);
-        return $this->curlExec($curlHandle, 'DELETE', $url);
-    }
-
-    /**
-     * Apply offset and limit to a end point URL.
-     * @param mixed $endPointUrl
-     * @return string
-     */
-    private function applyOffsetLimit ($url)
-    {
-        $urlArray = parse_url($url);
-
-        if (!isset($urlArray['query'])) {
-            $urlArray['query'] = null;
-        }
-
-        parse_str($urlArray['query'], $queryStringArray);
-
-        $queryStringArray['offset'] = $this->offset;
-        $queryStringArray['limit'] = min(max(1, $this->limit), 500);
-
-        $urlArray['query'] = http_build_query($queryStringArray, null, '&');
-
-        $url = (isset($urlArray['scheme'])) ? "{$urlArray['scheme']}://" : '';
-        $url .= (isset($urlArray['host'])) ? "{$urlArray['host']}" : '';
-        $url .= (isset($urlArray['port'])) ? ":{$urlArray['port']}" : '';
-        $url .= (isset($urlArray['path'])) ? "{$urlArray['path']}" : '';
-        $url .= (isset($urlArray['query'])) ? "?{$urlArray['query']}" : '';
-
-        return $url;
-    }
-
-    /**
-     * Make a POST/PUT/DELETE request using cURL
-     * @param Entity $entity
-     * @param mixed $httpMethod
-     * @return Response
-     */
-    private function curlSend ($method, $data, $url)
-    {
-
-        $curlHandle = $this->curlInit();
-
-        curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string) $data);
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-Type: application/json'), $this->headers));
-
-        return $this->curlExec($curlHandle, $method, $url);
-    }
-
-    /**
      * Set the offset for GET requests
      * @param mixed $offset
      */
@@ -306,6 +266,93 @@ class Request
     }
 
     /**
+     * Create or update tag
+     *
+     * @param string Name of tag
+     * @param string Value of tag
+     * @return string
+     */
+    public function createOrUpdateTag($name, $value)
+    {
+        if (!is_string($name)) {
+            throw new RuntimeException("Tag name must be a string");
+        }
+        if (!is_string($value)) {
+            throw new RuntimeException("Tag value must be a string");
+        }
+        if (strlen($name) > 64) {
+            throw new RuntimeException("Tag name too long. Max length 64.");
+        }
+        if (strlen($value) > 1024) {
+            throw new RuntimeException("Tag value too long. Max length 1024.");
+
+        }
+        $response = $this->curlExec(
+            'POST',
+            "{$this->apiHost}/account/tag/".rawurlencode($name),
+            array('Content-Type: application/json'),
+            json_encode($value)
+        );
+
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
+    }
+
+    /**
+     * Delete a tag
+     *
+     * @param string Tag name
+     */
+    public function deleteTag($name)
+    {
+        if (!is_string($name)) {
+            throw new RuntimeException("Tag name must be a string");
+        }
+        if (strlen($name) > 64) {
+            throw new RuntimeException("Tag name too long. Max length 64.");
+        }
+
+        $response = $this->curlExec(
+            'DELETE',
+            "{$this->apiHost}/account/tag/".rawurlencode($name)
+        );
+
+
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
+    }
+
+    /**
+     * Get a tag
+     *
+     * @param string Tag name
+     */
+    public function getTag($name)
+    {
+        if (!is_string($name)) {
+            throw new RuntimeException("Tag name must be a string");
+        }
+        if (strlen($name) > 64) {
+            throw new RuntimeException("Tag name too long. Max length 64.");
+        }
+
+        $response = $this->curlExec(
+            'GET',
+            "{$this->apiHost}/account/tag/".rawurlencode($name)
+        );
+
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
+    }
+
+
+    /**
      * Delete an ApiKey for a child account
      * @param string $apikey
      * @return Response
@@ -313,33 +360,22 @@ class Request
     public function deleteApiKey($apikey)
     {
         $endPointUrl = $this->apiHost."/account/apikey/".$apikey;
-        return $this->curlDelete($endPointUrl);
+        return $this->curlExec('DELETE', $endPointUrl);
     }
 
     /**
-     * Delete a tag for a child account
-     * @param string $tag
-     * @return Response
-     * */
-    public function deleteTag($tag)
-    {
-        $endPointUrl = $this->apiHost."/account/tag/".$tag;
-        return $this->curlDelete($endPointUrl);
-    }
-
-    /**
-     * Delete a child account
-     * MUST have $this->headers set to run.
+     * Delete a account based on account credentials
      * @return Response
      * */
     public function deleteAccount()
     {
         $endPointUrl = $this->apiHost."/account/";
-        return $this->curlDelete($endPointUrl);
+        return $this->curlExec('DELETE', $endPointUrl);
     }
 
     /**
      * Returns a client key.
+     *
      * @param string $uuid
      * @param string $edition
      * @param string $version
@@ -347,25 +383,33 @@ class Request
      * */
     public function getClientKey($uuid, $edition, $version)
     {
-        $endPointUrl = $this->apiHost."/client/key/".$uuid."?edition=".$edition."&version=".$version;
-        return $this->curlGet($endPointUrl);
+        $url = sprintf(
+            '%s/client/key/%s?edition=%s&version=%s',
+            $this->apiHost,
+            rawurlencode($uuid),
+            rawurlencode($edition),
+            rawurlencode($version)
+        );
+        return $this->curlExec('GET', $url);
     }
 
     /**
      * Gets print job states.
+     *
      * @param string $printjobId OPTIONAL:if unset gives states relative to all printjobs.
      * @return Entity[]
      * */
     public function getPrintJobStates($printJobIds = null)
     {
 
-        $endPointUrl = $this->apiHost."/printjobs";
+        $url = $this->apiHost."/printjobs";
         if ($printJobIds) {
-            $endPointUrl .= "/".$printjobIds;
+            $url .= "/".$printJobIds;
         }
-        $endPointUrl .= '/states';
+        $url .= '/states';
+        $url = $this->applyOffsetLimit($url);
 
-        $response = $this->curlGet($endPointUrl);
+        $response = $this->curlExec('GET', $url);
 
         if (!$response->isOK()) {
             throw $response->getHTTPException();
@@ -380,23 +424,25 @@ class Request
 
     /**
      * Gets PrintJobs relative to a printer.
-     * @param string $printerIdSet set of printer ids to find PrintJobs relative to
+     *
+     * @param string $printerSet set of printer ids to find PrintJobs relative to
      * @param string $printJobId OPTIONAL: set of PrintJob ids relative to the printer.
      * @return Entity[]
-     * */
-    public function getPrintJobsByPrinters($printerIdSet = null, $printJobIdSet = null)
+     **/
+    public function getPrintJobs($printerSet = null, $printJobSet = null)
     {
 
         $url = $this->apiHost;
-        if ($printerIdSet) {
-            $url .= "/printers/{$printerIdSet}";
+        if ($printerSet) {
+            $url .= "/printers/{$printerSet}";
         }
         $url .= '/printjobs';
-        if ($printJobIdSet) {
-            $url .= "/{$printerIdSet}";
+        if ($printJobSet) {
+            $url .= "/{$printJobSet}";
         }
+        $url = $this->applyOffsetLimit($url);
 
-        $response = $this->curlGet($url);
+        $response = $this->curlExec('GET', $url);
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
@@ -405,56 +451,90 @@ class Request
 
     /**
      * Gets scales relative to a computer.
+     *
      * @param string $computerId id of computer to find scales
      * @return Entity[]
-     * */
-    public function getScales(string $computerId)
+     **/
+    public function getScales($computerId, $scaleName = null, $scaleNum = null)
     {
 
-        $endPointUrl = sprintf("%s/computer/%s/scales", $apiHost, $computerId);
-        $response = $this->curlGet($endPointUrl);
+        $url = sprintf(
+            "%s/computer/%s/scale%s",
+            $this->apiHost,
+            $computerId,
+            !isset($scaleNum) ? 's' : ''
+        );
+
+        if (isset($scaleName)) {
+            $url .= "/".rawurlencode($scaleName);
+        }
+        if (isset($scaleNum)) {
+            $url .= "/".rawurlencode($scaleNum);
+        }
+
+        $response = $this->curlExec('GET', $url);
 
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
 
-        return Entity::makeFromResponse("PrintNode\\Entity\\Scale", json_decode($response->getContent()));
+        $entityClass = $this->methodNameEntityMap['Scale'];
+        // are we returning one or more scales objects?
+        if (isset($scaleNum)) {
+            return Entity::mapDataToEntity( $entityClass, $response->getDecodedContent());
+        } else {
+            return Entity::makeFromResponse($entityClass, $response->getDecodedContent(false));
+        }
+
     }
 
     /**
      * Get printers relative to a computer.
+     *
      * @param string $computerIdSet set of computer ids to find printers relative to
      * @param string $printerIdSet OPTIONAL: set of printer ids only found in the set of computers.
      * @return Entity[]
-     * */
-    public function getPrintersByComputers($computerSet, $printerSet=null)
+     **/
+    public function getPrinters($computerSet = null, $printerSet = null)
     {
 
-        $arguments = func_get_args();
-
-        if (count($arguments) > 2) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Too many arguments given to getPrintersByComputers.'
-                )
-            );
+        $url = $this->apiHost;
+        if ($computerSet) {
+            $url .= "/computers/{$computerSet}";
+        }
+        $url .= '/printers';
+        if ($printerSet) {
+            $url .= "/{$printerSet}";
         }
 
-        $endPointUrl = $this->apiHost."/computers/";
-        $arg_1 = array_shift($arguments);
-        $endPointUrl .= $arg_1.'/printers/';
+        $url = $this->applyOffsetLimit($url);
 
-        foreach ($arguments as $argument) {
-            $endPointUrl .= $argument;
-        }
-
-        $response = $this->curlGet($endPointUrl);
-
+        $response = $this->curlExec('GET', $url);
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-
         return Entity::makeFromResponse("PrintNode\\Entity\\Printer", json_decode($response->getContent()));
+    }
+
+    /**
+     * Get computers
+     *
+     * @param string $computerSet
+     * @return Entity[]
+     */
+    public function getComputers($computerSet = null)
+    {
+        $url = "{$this->apiHost}/computers";
+        if ($computerSet) {
+            $url .= "/{$computerSet}";
+        }
+        $url = $this->applyOffsetLimit($url);
+
+        $response = $this->curlExec('GET', $url);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return Entity::makeFromResponse("PrintNode\\Entity\\Computer", json_decode($response->getContent()));
     }
 
     /**
@@ -483,7 +563,7 @@ class Request
             $endPointUrl = sprintf('%s/%s', $endPointUrl, $arguments);
         }
 
-        $response = $this->curlGet($endPointUrl);
+        $response = $this->curlExec('GET', $endPointUrl);
 
         if (!$response->isOK()) {
             throw $response->getHTTPException();
@@ -521,7 +601,12 @@ class Request
             $entity = $entity->formatForPatch();
         }
 
-        return $this->curlSend('PATCH', $entity, $endPointUrl);
+        return $this->curlExec(
+            'PATCH',
+            $endPointUrl,
+            array('Content-Type: application/json'),
+            $entity
+        );
     }
 
     /**
@@ -550,7 +635,12 @@ class Request
 			$entity = $entity->formatForPost();
 		}
 
-        return $this->curlSend('POST', $entity, $endPointUrl);
+        return $this->curlExec(
+            'POST',
+            $endPointUrl,
+            array('Content-Type: application/json'),
+            $entity
+        );
     }
 
     /**
@@ -579,7 +669,12 @@ class Request
             $endPointUrl .= '/'.$argument;
         }
 
-        return $this->curlSend('PUT', $entity, $endPointUrl);
+        return $this->curlExec(
+            'PUT',
+            $endPointUrl,
+            $entity,
+            array('Content-Type: application/json')
+        );
     }
 
     /**
@@ -595,7 +690,7 @@ class Request
             $endPointUrl .= '/'.$entity->endPointUrlArg();
         }
 
-        return $this->curlDelete($endPointUrl);
+        return $this->curlExec('DELETE', $endPointUrl);
     }
 
 }

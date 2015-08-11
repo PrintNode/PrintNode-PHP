@@ -9,7 +9,7 @@ class AuthTests extends PHPUnit_Framework_TestCase
 
     public function testAuthWithApiKey()
     {
-        $credentials = new ApiKey(API_KEY);
+        $credentials = new ApiKey(API_KEY, [], ['X-No-Throttle' => 'true']);
         $request = new Request($credentials);
         $whoami = $request->getWhoami();
         $this->assertSame($whoami->email, 'god@printnode.com');
@@ -17,7 +17,7 @@ class AuthTests extends PHPUnit_Framework_TestCase
 
     public function testAuthWithAccountCredentials()
     {
-        $credentials = new Username('matthew@printnode.com', 'matthew');
+        $credentials = new Username('matthew@printnode.com', 'matthew', [], ['X-No-Throttle' => 'true']);
         $request = new Request($credentials);
         $whoami = $request->getWhoami();
         $this->assertSame($whoami->email, 'matthew@printnode.com');
@@ -25,7 +25,7 @@ class AuthTests extends PHPUnit_Framework_TestCase
 
     public function testChildAccountById()
     {
-        $credentials = new ApiKey(API_KEY, ['id' => 444]);
+        $credentials = new ApiKey(API_KEY, ['id' => 444], ['X-No-Throttle' => 'true']);
         $request = new Request($credentials);
         $whoami = $request->getWhoami();
         $this->assertSame($whoami->email, 'matthew@printnode.com');
@@ -33,7 +33,7 @@ class AuthTests extends PHPUnit_Framework_TestCase
 
     public function testChildAccountByEmail()
     {
-        $credentials = new ApiKey(API_KEY, ['email' => 'matthew@printnode.com']);
+        $credentials = new ApiKey(API_KEY, ['email' => 'matthew@printnode.com'], ['X-No-Throttle' => 'true']);
         $request = new Request($credentials);
         $whoami = $request->getWhoami();
         $this->assertSame($whoami->email, 'matthew@printnode.com');
@@ -41,7 +41,7 @@ class AuthTests extends PHPUnit_Framework_TestCase
 
     public function testChildAccountByRef()
     {
-        $credentials = new ApiKey(API_KEY, ['creatorRef' => 'matthew']);
+        $credentials = new ApiKey(API_KEY, ['creatorRef' => 'matthew'], ['X-No-Throttle' => 'true']);
         $request = new Request($credentials);
         $whoami = $request->getWhoami();
         $this->assertSame($whoami->email, 'matthew@printnode.com');

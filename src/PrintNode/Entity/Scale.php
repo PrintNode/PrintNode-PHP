@@ -31,7 +31,7 @@ class Scale extends Entity
     protected $port;
     protected $count;
     protected $measurement;
-    protected $clientReprotedCreateTimestamp;
+    protected $clientReportedCreateTimestamp;
     protected $ntpOffset;
     protected $ageOfData;
     protected $computerId;
@@ -39,9 +39,4 @@ class Scale extends Entity
     protected $product;
     protected $vendorId;
     protected $productId;
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }

@@ -26,9 +26,4 @@ class Tag extends Entity
 	{
 		return json_encode($this->value);
 	}
-
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
 }
