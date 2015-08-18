@@ -228,6 +228,16 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertSame(1, count($scales));
     }
 
+    public function testGetScalesByRealScaleNameAndNum()
+    {
+        $request = new Request($this->credentials);
+        $scales = $request->getScales(0, 'PrintNode Test Scale', 0);
+        $this->assertInstanceOf(
+            get_class(new Scale()),
+            $scales
+        );
+    }
+
     /**
       * @expectedException  PrintNode\HTTPException
      **/

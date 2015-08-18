@@ -2,6 +2,8 @@
 
 namespace PrintNode;
 
+use PrintNode\Entity\Account;
+
 if (!function_exists('curl_init')) {
     throw new \RuntimeException('Function curl_init() does not exist. Have you installed php curl?');
 }
@@ -46,17 +48,14 @@ class Request
      * Map entity names to API URLs
      * @var string[]
      */
-
     private $endPointUrls = array(
         'PrintNode\\Entity\\Account' => '/account',
-        'PrintNode\\Entity\\ApiKey' => '/account/apikey',
         'PrintNode\\Entity\\Client' => '/download/clients',
         'PrintNode\\Entity\\Computer' => '/computers',
         'PrintNode\\Entity\\Download' => '/download/client',
         'PrintNode\\Entity\\Printer' => '/printers',
         'PrintNode\\Entity\\PrintJob' => '/printjobs',
-        'PrintNode\\Entity\\States' => '/printjob/states',
-        'PrintNode\\Entity\\Tag' => '/account/tag',
+        'PrintNode\\Entity\\PrintJobState' => '/printjob/states',
         'PrintNode\\Entity\\Whoami' => '/whoami',
     );
 
@@ -65,17 +64,26 @@ class Request
      * @var string[]
      */
     private $methodNameEntityMap = array(
-        'Account' => 'PrintNode\\Entity\\Account',
-        'ApiKeys' => 'PrintNode\\Entity\\ApiKey',
+        'Accounts' => 'PrintNode\\Entity\\Account',
         'Clients' => 'PrintNode\\Entity\\Client',
         'Computers' => 'PrintNode\\Entity\\Computer',
         'Downloads' => 'PrintNode\\Entity\\Download',
         'Printers' => 'PrintNode\\Entity\\Printer',
         'PrintJobs' => 'PrintNode\\Entity\\PrintJob',
-        'PrintJobStates' => 'PrintNode\\Entity\\States',
-        'Scale' => 'PrintNode\\Entity\\Scale',
-        'Tags' => 'PrintNode\\Entity\\Tag',
+        'PrintJobStates' => 'PrintNode\\Entity\\PrintJobState',
+        'Scales' => 'PrintNode\\Entity\\Scale',
         'Whoami' => 'PrintNode\\Entity\\Whoami',
+    );
+
+    /**
+     * @var array Array of account properties
+     */
+    private $accountPropertiesAllowedUpdate = array(
+        'firstname',
+        'lastname',
+        'password',
+        'email',
+        'creatorRef',
     );
 
     /**
@@ -113,7 +121,7 @@ class Request
      * @param mixed $endPointUrl
      * @return Response
      */
-    protected function curlExec ($method, $url, $headers = array(), $body = null)
+    protected function curlExec ($method, $url, $body = null)
     {
 
         $curlHandle = curl_init();
@@ -130,8 +138,11 @@ class Request
         curl_setopt($curlHandle, CURLOPT_URL, $url);
 
         # set http headers
-        if ($headers) {
-            $headers = array_merge($headers, $this->headers);
+        if (isset($body)) {
+            $headers = array_merge(
+                array('Content-Type: application/json'),
+                $this->headers
+            );
         } else {
             $headers = $this->headers;
         }
@@ -290,7 +301,6 @@ class Request
         $response = $this->curlExec(
             'POST',
             "{$this->apiHost}/account/tag/".rawurlencode($name),
-            array('Content-Type: application/json'),
             json_encode($value)
         );
 
@@ -351,16 +361,102 @@ class Request
         return $response->getDecodedContent();
     }
 
-
     /**
-     * Delete an ApiKey for a child account
+     * Create a ApiKey for a account
+     *
      * @param string $apikey
      * @return Response
-     * */
+     **/
+    public function createApiKey($description)
+    {
+        $endPointUrl = $this->apiHost."/account/apikey/".rawurlencode($description);
+        $response = $this->curlExec('POST', $endPointUrl);
+        return $response->getDecodedContent();
+    }
+
+    /**
+     * Get a API Key for a account
+     */
+    public function getApiKey($description)
+    {
+        $endPointUrl = $this->apiHost."/account/apikey/".rawurlencode($description);
+        $response = $this->curlExec('GET', $endPointUrl);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
+    }
+
+    /**
+     * Delete an ApiKey for a account
+     *
+     * @param string $apikey
+     **/
     public function deleteApiKey($apikey)
     {
-        $endPointUrl = $this->apiHost."/account/apikey/".$apikey;
-        return $this->curlExec('DELETE', $endPointUrl);
+        $endPointUrl = $this->apiHost."/account/apikey/".rawurlencode($apikey);
+        $response = $this->curlExec('DELETE', $endPointUrl);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
+    }
+
+    /**
+     * Whoami?
+     */
+    public function getWhoAmi()
+    {
+        $url = $this->apiHost."/whoami";
+        $response = $this->curlExec('GET', $url);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return Entity::makeFromResponse(
+            $this->methodNameEntityMap['Whoami'],
+            $response->getDecodedContent()
+        );
+    }
+
+    /**
+     * Create account
+     *
+     * @var PrintNode\Entity\Account Account or something which looks like PrintNode\Entity\Account
+     */
+    public function createAccount($account)
+    {
+        if ($account instanceof Account) {
+            $body = $account->toArray();
+        }
+        $response = $this->curlExec('POST', $this->apiHost."/account", json_encode($body));
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent(true);
+    }
+
+    /**
+     * Update a account's properties
+     *
+     * @param array Account properties in key value format
+     */
+    public function updateAccount(array $properties)
+    {
+        $update = array();
+        foreach ($this->accountPropertiesAllowedUpdate as $property) {
+            if (isset($properties[$property])) {
+                $update[$property] = $properties[$property];
+            }
+        }
+        $response = $this->curlExec(
+            'PATCH',
+            "{$this->apiHost}/account",
+            json_encode($update)
+        );
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
     }
 
     /**
@@ -414,11 +510,73 @@ class Request
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-
         return Entity::makeFromResponse(
-            "PrintNode\\Entity\\PrintJobState",
-            json_decode($response->getContent())
+            $this->methodNameEntityMap['PrintJobStates'],
+            $response->getDecodedContent()
         );
+    }
+
+    /**
+     * Get Latest Downloads
+     *
+     * @param string Operating system
+     */
+    public function getLatestDownload($operatingSystem)
+    {
+        $url = sprintf(
+            "%s/download/client/%s",
+            $this->apiHost,
+            rawurlencode($operatingSystem)
+        );
+
+        $response = $this->curlExec('GET', $url);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return Entity::makeFromResponse(
+            $this->methodNameEntityMap['Downloads'],
+            $response->getDecodedContent()
+        );
+    }
+
+    /**
+     * Get Latest Downloads
+     *
+     * @param string Operating system
+     */
+    public function getClients($clientIds = null)
+    {
+        $url = "{$this->apiHost}/download/clients";
+        if ($clientIds) {
+            $url .= "/".rawurlencode($clientIds);
+        }
+
+        $response = $this->curlExec('GET', $url);
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return Entity::makeFromResponse(
+            $this->methodNameEntityMap['Clients'],
+            $response->getDecodedContent()
+        );
+    }
+
+    /**
+     * Enable/Client clients
+     *
+     * @param string|int $clientIds
+     * @param bool Enabled state
+     **/
+    public function enabledClients($clientIds, $enabled)
+    {
+        $url = sprintf("%s/download/clients/%s", $this->apiHost, $clientIds);
+        $body = array('enabled' => (bool) $enabled);
+        $response = $this->curlExec('PATCH', $url, json_encode($body));
+
+        if (!$response->isOK()) {
+            throw $response->getHTTPException();
+        }
+        return $response->getDecodedContent();
     }
 
 
@@ -446,7 +604,7 @@ class Request
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-        return Entity::makeFromResponse("PrintNode\\Entity\\PrintJob", json_decode($response->getContent()));
+        return Entity::makeFromResponse($this->methodNameEntityMap['PrintJobs'], $response->getDecodedContent());
     }
 
     /**
@@ -477,14 +635,7 @@ class Request
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-
-        $entityClass = $this->methodNameEntityMap['Scale'];
-        // are we returning one or more scales objects?
-        if (isset($scaleNum)) {
-            return Entity::mapDataToEntity( $entityClass, $response->getDecodedContent());
-        } else {
-            return Entity::makeFromResponse($entityClass, $response->getDecodedContent(false));
-        }
+        return Entity::makeFromResponse($this->methodNameEntityMap['Scales'], $response->getDecodedContent());
 
     }
 
@@ -513,7 +664,7 @@ class Request
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-        return Entity::makeFromResponse("PrintNode\\Entity\\Printer", json_decode($response->getContent()));
+        return Entity::makeFromResponse($this->methodNameEntityMap['Printers'], $response->getDecodedContent());
     }
 
     /**
@@ -534,79 +685,7 @@ class Request
         if (!$response->isOK()) {
             throw $response->getHTTPException();
         }
-        return Entity::makeFromResponse("PrintNode\\Entity\\Computer", json_decode($response->getContent()));
-    }
-
-    /**
-     * Map method names getComputers, getPrinters and getPrintJobs to entities
-     * @param mixed $methodName
-     * @param mixed $arguments
-     * @return Entity[]
-     */
-    public function __call($methodName, $arguments)
-    {
-
-        $entityName = $this->getEntityName($methodName);
-        $endPointUrl = $this->getEndPointUrl($entityName);
-
-        if (count($arguments) > 0) {
-            $arguments = array_shift($arguments);
-            if (!is_string($arguments)) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Invalid argument type passed to %s. Expecting a string got %s',
-                        $methodName,
-                        gettype($arguments)
-                    )
-                );
-            }
-            $endPointUrl = sprintf('%s/%s', $endPointUrl, $arguments);
-        }
-
-        $response = $this->curlExec('GET', $endPointUrl);
-
-        if (!$response->isOK()) {
-            throw $response->getHTTPException();
-        }
-
-        return Entity::makeFromResponse(
-            $entityName,
-            json_decode($response->getContent())
-        );
-    }
-
-    /**
-     * PATCH (update) the specified entity
-     * @param Entity $entity
-     * @return Response
-     * */
-    public function patch(Entity $entity)
-    {
-        if (!($entity instanceof Entity)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid argument type passed to patch. Expecting Entity got %s',
-                    gettype($entity)
-                )
-            );
-        }
-
-        $endPointUrl = $this->getEndPointUrl(get_class($entity));
-
-        if (method_exists($entity, 'endPointUrlArg')) {
-            $endPointUrl.= '/'.$entity->endPointUrlArg();
-        }
-
-        if (method_exists($entity, 'formatForPatch')) {
-            $entity = $entity->formatForPatch();
-        }
-
-        return $this->curlExec(
-            'PATCH',
-            $endPointUrl,
-            array('Content-Type: application/json'),
-            $entity
-        );
+        return Entity::makeFromResponse($this->methodNameEntityMap['Computers'], $response->getDecodedContent());
     }
 
     /**
@@ -638,59 +717,8 @@ class Request
         return $this->curlExec(
             'POST',
             $endPointUrl,
-            array('Content-Type: application/json'),
             $entity
         );
-    }
-
-    /**
-     * PUT (update) the specified entity
-     * @param Entity $entity
-     * @return Response
-     */
-    public function put(Entity $entity)
-    {
-
-        $arguments = func_get_args();
-        $entity = array_shift($arguments);
-
-        if (!($entity instanceof Entity)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid argument type passed to patch. Expecting Entity got %s',
-                    gettype($entity)
-                )
-            );
-        }
-
-        $endPointUrl = $this->getEndPointUrl(get_class($entity));
-
-        foreach ($arguments as $argument) {
-            $endPointUrl .= '/'.$argument;
-        }
-
-        return $this->curlExec(
-            'PUT',
-            $endPointUrl,
-            $entity,
-            array('Content-Type: application/json')
-        );
-    }
-
-    /**
-     * DELETE (delete) the specified entity
-     * @param Entity $entity
-     * @return Response
-     */
-    public function delete(Entity $entity)
-    {
-        $endPointUrl = $this->getEndPointUrl(get_class($entity));
-
-        if (method_exists($entity, 'endPointUrlArg')) {
-            $endPointUrl .= '/'.$entity->endPointUrlArg();
-        }
-
-        return $this->curlExec('DELETE', $endPointUrl);
     }
 
 }

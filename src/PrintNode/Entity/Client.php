@@ -32,14 +32,4 @@ class Client extends Entity
     protected $sha1;
     protected $releaseTimestamp;
     protected $url;
-
-    public function formatForPatch()
-    {
-        return json_encode(array("enabled" => $this->enabled));
-    }
-
-    public function endPointUrlArg()
-    {
-        return (string) $this->id;
-    }
 }

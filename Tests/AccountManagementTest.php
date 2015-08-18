@@ -45,14 +45,12 @@ class AccountsTests extends PHPUnit_Framework_TestCase
 
     protected function tearDown ()
     {
-
         $ch = curl_init("https://apidev.printnode.com/test/data/generate");
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->credentials->getHeaders());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_exec($ch);
         curl_close($ch);
-
     }
 
     public function testTags ()
@@ -75,35 +73,12 @@ class AccountsTests extends PHPUnit_Framework_TestCase
         $request->deleteTag("tag");
     }
 
-    public function testLatestClient ()
-    {
-        $request = new Request($this->credentials);
-        $client = $request->getDownloads("osx");
-        $this->assertInstanceOf(
-            get_class(new Download()),
-            $client
-        );
-    }
-
-    public function testClients ()
-    {
-        $request = new Request($this->credentials);
-        $clients = $request->getClients("10-15");
-        $this->assertInstanceOf(
-            get_class(new Client()),
-            $clients[0]
-        );
-        $clients[0]->enabled = false;
-        $response = $request->patch($clients[0]);
-        $this->assertEquals(array($clients[0]->id), $response->getDecodedContent());
-    }
-
     public function testAccountCreationAndDeletion ()
     {
     	$reqAccount = $this->getAccount();
 
         $request = new Request(new ApiKeyCredentials(API_KEY, [], ['X-No-Throttle' => 'true']));
-        $account = $request->post($reqAccount)->getDecodedContent();
+        $account = $request->createAccount($reqAccount);
         $this->assertEquals("AFirstName", $account["Account"]["firstname"]);
 
         $request = new Request(
@@ -116,38 +91,21 @@ class AccountsTests extends PHPUnit_Framework_TestCase
     public function testModifyAccount ()
     {
     	$reqAccount = $this->getAccount();
-
         $request = new Request(new ApiKeyCredentials(API_KEY, [], ['X-No-Throttle' => 'true']));
-        $accountInfo = $request->post($reqAccount)->getDecodedContent();
-
+        $accountInfo = $request->createAccount($reqAccount);
         $request = new Request(new ApiKeyCredentials(API_KEY, ["id" => $accountInfo["Account"]["id"]]));
-        $account = new Account();
-        $account->Account  = array(
+
+        $accountProperties  = array(
             "firstname" => "ANewFirstName",
-            "lastname" => "ALastName",
-            "email" => "email@emailprovider.com",
-            "password" => "APassword"
+            "lastname" => "ANewLastName",
+            "email" => "anewemail3@emailprovider.com",
+            "password" => "ANewPassword"
         );
-        $response = $request->patch($account)->getDecodedContent();
+        $response = $request->updateAccount($accountProperties);
 
-        $this->assertEquals("ANewFirstName", $response["firstname"]);
-        $request->deleteAccount();
-    }
-
-    public function testApiKey ()
-    {
-    	$reqAccount = $this->getAccount();
-
-        $request = new Request(new ApiKeyCredentials(API_KEY, [], ['X-No-Throttle' => 'true']));
-        $accountInfo = $request->post($reqAccount)->getDecodedContent();
-
-        $request = new Request(new ApiKeyCredentials(API_KEY, ["id" => $accountInfo["Account"]["id"]], ['X-No-Throttle' => 'true']));
-        $apiKey = new ApiKey();
-        $apiKey->description = "testing";
-        $response = $request->post($apiKey);
-        $this->assertInternalType("string",$response->getDecodedContent());
-        $getKey = $request->getApiKeys("testing");
-        $this->assertEquals($response->getDecodedContent(),$getKey);
+        $this->assertEquals($accountProperties['firstname'], $response->firstname);
+        $this->assertEquals($accountProperties['lastname'], $response->lastname);
+        $this->assertEquals($accountProperties['email'], $response->email);
         $request->deleteAccount();
     }
 
@@ -156,6 +114,56 @@ class AccountsTests extends PHPUnit_Framework_TestCase
         $request = new Request($this->credentials);
         $response = $request->getClientKey('0a756864-602e-428f-a90b-842dee47f57e', '4.7.1', 'printnode');
         $this->assertInternaltype("string", $response->getDecodedContent());
+    }
+
+
+    public function testLatestClient ()
+    {
+        $request = new Request($this->credentials);
+        $client = $request->getLatestDownload("osx");
+        $this->assertInstanceOf(
+            get_class(new Download()),
+            $client
+        );
+    }
+
+    public function testClients ()
+    {
+        $request = new Request($this->credentials);
+        $clients = $request->getClients();
+        $this->assertInstanceOf(
+            get_class(new Client()),
+            $clients[0]
+        );
+
+        $this->assertTrue(count($clients) > 1);
+        $clients = $request->getClients($clients[0]->id);
+        $this->assertTrue(count($clients) == 1);
+
+        $client = $clients[0];
+
+        $response = $request->enabledClients($client->id, !$client->enabled);
+        $this->assertEquals(array($client->id), $response);
+    }
+
+    public function testApiKey ()
+    {
+    	$reqAccount = $this->getAccount();
+
+        $request = new Request(new ApiKeyCredentials(API_KEY, [], ['X-No-Throttle' => 'true']));
+        $accountInfo = $request->createAccount($reqAccount);
+
+        $request = new Request(new ApiKeyCredentials(API_KEY, ["id" => $accountInfo["Account"]["id"]], ['X-No-Throttle' => 'true']));
+        $response = $request->createApiKey("testing");
+        $this->assertInternalType("string", $response);
+
+        $getKey = $request->getApiKey("testing");
+        $this->assertEquals($response, $getKey);
+
+        $response = $request->deleteApiKey("testing");
+        $this->assertTrue($response === true);
+
+        $request->deleteAccount();
     }
 
 }

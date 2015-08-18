@@ -19,15 +19,10 @@ class Account extends Entity
     protected $ApiKeys;
     protected $Tags;
 
-    public function formatForPatch()
-    {
-        return json_encode($this->Account);
-    }
-
     public function foreignKeyEntityMap()
     {
         return array(
-            'printer' => 'PrintNode\\Entity\\Whoami'
+            'Account' => 'PrintNode\\Entity\\Whoami'
         );
     }
 }

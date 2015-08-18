@@ -28,6 +28,10 @@ class PrintJob extends Entity
     protected $content;
     protected $source;
     protected $filesize;
+    protected $options;
+    protected $expireAfter;
+    protected $qty;
+    protected $authentication;
     protected $createTimestamp;
     protected $state;
     protected $expireAt;
@@ -35,7 +39,7 @@ class PrintJob extends Entity
     public function foreignKeyEntityMap()
     {
         return array(
-            'printer' => 'PrintNode\Entity\Printer'
+            'printer' => 'PrintNode\\Entity\\Printer'
         );
     }
 }

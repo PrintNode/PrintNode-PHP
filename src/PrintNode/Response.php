@@ -98,7 +98,7 @@ class Response
      * @param void
      * @return mixed
      */
-    public function getDecodedContent($asArray = true)
+    public function getDecodedContent($asArray = false)
     {
         $decoded = json_decode($this->content, (bool) $asArray);
         // have error?
@@ -181,7 +181,7 @@ TEXT
         }
 
         try {
-            $response = $this->getDecodedContent();
+            $response = $this->getDecodedContent(true);
         } catch (\RuntimeException $exception) {
             $message = $matchesArray[3];
         }
