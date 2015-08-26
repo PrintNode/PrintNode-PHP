@@ -5,13 +5,15 @@ namespace PrintNode\Credentials;
 class ApiKey extends \PrintNode\Credentials
 {
 
-    public function __construct ($apiKey, array $childAccountOptions = array(), array $headers = array())
+    /**
+     * Class constuctor
+     * @param string $apiKey API Key to be used for authentication
+     */
+    public function __construct ($apiKey)
     {
-        $this->setBasicAuthHeader($apiKey, '');
-        $this->parseChildAccountOptions($childAccountOptions);
-        foreach ($headers as $name => $value) {
-            $this->setHeader($name, $value);
-        }
+        
+        $this->apiKey = $apiKey;
+        
     }
 
 }

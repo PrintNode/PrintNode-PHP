@@ -20,8 +20,9 @@ use PrintNode\Entity;
  * @property-read DateTime $releaseTimestamp
  * @property-read string $url
  */
-class Client extends Entity
+class ClientDownload extends Entity
 {
+    
     protected $id;
     protected $enabled;
     protected $edition;
@@ -32,4 +33,22 @@ class Client extends Entity
     protected $sha1;
     protected $releaseTimestamp;
     protected $url;
+    
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'id' => null,
+        'enabled' => null,
+        'edition' => null,
+        'version' => null,
+        'os' => null,
+        'filename' => null,
+        'filesize' => null,
+        'sha1' => null,
+        'releaseTimestamp' => null,
+        'url' => null,
+    );
+    
 }

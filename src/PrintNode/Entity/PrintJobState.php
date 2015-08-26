@@ -19,6 +19,7 @@ use PrintNode\Entity;
  */
 class PrintJobState extends Entity
 {
+    
     protected $printJobId;
     protected $state;
     protected $message;
@@ -26,4 +27,19 @@ class PrintJobState extends Entity
     protected $clientVersion;
     protected $createTimestamp;
     protected $age;
+    
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'printJobId' => null,
+        'state' => null,
+        'message' => null,
+        'data' => null,
+        'clientVersion' => null,
+        'createTimestamp' => null,
+        'age' => null,
+    );
+    
 }

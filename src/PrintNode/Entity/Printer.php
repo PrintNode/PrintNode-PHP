@@ -20,6 +20,7 @@ use PrintNode\Entity;
  */
 class Printer extends Entity
 {
+    
     protected $id;
     protected $computer;
     protected $name;
@@ -29,10 +30,26 @@ class Printer extends Entity
     protected $createTimestamp;
     protected $state;
 
-    public function foreignKeyEntityMap()
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'id' => null,
+        'computer' => '\PrintNode\Entity\Computer',
+        'name' => null,
+        'description' => null,
+        'capabilities' => '\PrintNode\Entity\PrinterCapabilities',
+        'default' => null,
+        'createTimestamp' => null,
+        'state' => null,
+    );
+    
+    public function viewPrintJobs()
     {
-        return array(
-            'computer' => 'PrintNode\\Entity\\Computer',
-        );
+        
+        
+        
     }
+    
 }

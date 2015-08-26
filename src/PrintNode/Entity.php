@@ -2,116 +2,25 @@
 
 namespace PrintNode;
 
-/**
- * Entity
- *
- * Base class for entity objects.
- */
-abstract class Entity implements EntityInterface
+abstract class Entity implements \JsonSerializable
 {
-
+    
     /**
-     * Recursively cast an object into an array.
-     * @param mixed $object
-     * @return mixed[]
+     * Reference to the client
+     * @var Client
      */
-    private static function toArrayRecursive($object)
-    {
-        $output = get_object_vars($object);
-
-        foreach ($output as $key => $value) {
-            if ($value instanceof \DateTime) {
-                $output[$key] = $value->format('c');
-            } elseif (is_object($value)) {
-                $output[$key] = static::toArrayRecursive($value);
-            }
-        }
-
-        return $output;
-    }
-
+    protected $client;
+    
     /**
-     * Map array of data to an entity
-     *
-     * @param mixed $entityName
-     * @param mixed $data
-     * @return Entity
+     * Class constructor
+     * @param \PrintNode\Client $parentClient
      */
-    public static function mapDataToEntity($entityName, \stdClass $data)
-    {
-
-        $entity = new $entityName();
-
-        if (!($entity instanceof Entity)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Object "%s" must extend Entity',
-                    $entityName
-                )
-            );
-        }
-
-        $foreignKeyEntityMap = $entity->foreignKeyEntityMap();
-
-        $properties = array_keys(get_object_vars($data));
-
-        foreach ($properties as $propertyName) {
-            if (!property_exists($entity, $propertyName)) {
-                throw new \UnexpectedValueException(
-                    sprintf(
-                        'Property %s->%s does not exist',
-                        get_class($entity),
-                        $propertyName
-                    )
-                );
-            }
-
-            if (isset($foreignKeyEntityMap[$propertyName])) {
-                $entity->$propertyName = self::mapDataToEntity(
-                    $foreignKeyEntityMap[$propertyName],
-                    $data->$propertyName
-                );
-            } elseif (is_string($data->$propertyName) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $data->$propertyName)) {
-                $entity->$propertyName = new \DateTime($data->$propertyName);
-            } else {
-                $entity->$propertyName = json_decode(json_encode($data->$propertyName), true);
-            }
-        }
-
-        return $entity;
+    public function __construct(Client $parentClient) {
+        
+        $this->client = $parentClient;
+        
     }
-
-    /**
-     * Cast entity into an array
-     * @param void
-     * @return mixed[]
-     */
-    public function toArray()
-    {
-        return static::toArrayRecursive($this);
-    }
-
-    /**
-     * Cast entity into a JSON encoded string
-     * @param void
-     * @return string
-     */
-    public function __toString()
-    {
-        return json_encode($this->toArray());
-    }
-
-    /**
-     * When populating a entity and properties reference other entities
-     * put the references in here. See, PrintJob for example
-     *
-     * @return array
-     */
-    public function foreignKeyEntityMap()
-    {
-        return array();
-    }
-
+    
     /**
      * Set property on entity
      * @param mixed $propertyName
@@ -120,6 +29,7 @@ abstract class Entity implements EntityInterface
      */
     public function __set($propertyName, $value)
     {
+        
         if (!property_exists($this, $propertyName)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -131,6 +41,7 @@ abstract class Entity implements EntityInterface
         }
 
         $this->$propertyName = $value;
+        
     }
 
     /**
@@ -140,6 +51,7 @@ abstract class Entity implements EntityInterface
      */
     public function __get($propertyName)
     {
+        
         if (!property_exists($this, $propertyName)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -154,74 +66,59 @@ abstract class Entity implements EntityInterface
     }
 
     /**
-     * Property get/set wrapper for those that prefer
-     * $entity->get('propertyName') style access
-     * @param mixed $name
-     * @param mixed $arguments
-     * @return mixed
+     * Uses the responseMap property to map values in JSON passed in the 
+     * argument to the properties.
+     * 
+     * @param type $json
+     * @return boolean
      */
-    public function __call($name, $arguments)
+    public function mapValuesFromJson($json)
     {
-        if (!preg_match('/^(get|set)(.+)$/', $name, $matchesArray)) {
-            throw new \BadMethodCallException(
-                sprintf(
-                    'method "%s" does not exist on entity "%s"',
-                    $name,
-                    get_class($this)
-                )
-            );
-        }
-
-        $propertyName = $matchesArray[2];
-
-        $propertyName = strtolower(substr($propertyName, 0, 1)). substr($propertyName, 1);
-
-        if (!property_exists($this, $propertyName)) {
-            throw new \BadMethodCallException(
-                sprintf(
-                    'Entity %s does not have a property named %s',
-                    get_class($this),
-                    $propertyName
-                )
-            );
-        }
-
-        switch ($matchesArray[1]) {
-
-            case 'set':
-
-                $this->$propertyName = $arguments[0];
-                break;
-
-            case 'get':
-
-                return $this->$propertyName;
-                break;
-        }
-    }
-
-    /**
-     * Make an array of specified entity from a Response
-     *
-     * @param mixed $entityName
-     * @param Response $response
-     * @return Entity[]
-     */
-    public static function makeFromResponse($entityName, $content)
-    {
-        $content = $content;
-        $output = array();
-        if (is_array($content)) {
-            foreach ($content as $entityData) {
-                $output[] = self::makeFromResponse($entityName, $entityData);
+        
+        foreach (static::$responseMap as $responseKey => $responseMapType) {
+            
+            if (isset($json->$responseKey)) {
+                
+                if ($responseMapType === null) {
+                    $this->$responseKey = $json->$responseKey;
+                } else {
+                    
+                    $childItem = $this->client->mapJsonToEntity($json->$responseKey, $responseMapType);
+                    
+                    $this->$responseKey = $childItem;
+                            
+                }
+                
             }
-        } elseif (is_object($content)) {
-            $output = self::mapDataToEntity($entityName, $content);
-        } else {
-            $output = $content;
+            
         }
-
-        return $output;
+        
+        return true;
+        
     }
-
+    
+    /**
+     * Implements the jsonSerialize method
+     * 
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        
+        $json = array();
+        
+        foreach (static::$responseMap as $responseKey => $responseMapType) {
+            
+            if ($this->$responseKey === null) {
+                continue;
+            }
+            
+            $json[$responseKey] = $this->$responseKey;
+            
+        }
+        
+        return $json;
+        
+    }
+    
 }

@@ -9,68 +9,107 @@ namespace PrintNode;
  */
 abstract class Credentials
 {
-
+    
     /**
-     * Stores the headers which will be sent to the server
-     * @var array
+     * API Key to be used in the authentication header
+     * @var string 
      */
-    protected $headers = array();
-
+    public $apiKey;
+    
     /**
-     * Child account option keys to header names
-     * @var array
+     * Username to be used in the authentication header
+     * @var string 
      */
-    private static $allowedChildAccountOptions = array(
-        'id' => 'X-Child-Account-By-Id',
-        'email' => 'X-Child-Account-By-Email',
-        'creatorRef' => 'X-Child-Account-By-CreatorRef',
-    );
-
+    public $username;
+    
     /**
-     * Set a header for a request
-     * @return PrintNode\Credentials
+     * Password to be used in the authentication header
+     * @var string 
      */
-	protected function setHeader($name, $value)
+    public $password;
+    
+    /**
+     * Child Account Email Address
+     * @var string 
+     */
+    public $childAccountEmail;
+    
+    /**
+     * Child Account Creator Reference
+     * @var string 
+     */
+    public $childAccountCreatorRef;
+    
+    /**
+     * Child Account Id
+     * @var string 
+     */
+    public $childAccountId;
+    
+    /**
+     * Sets the authentication context to a child account by the email address
+     * assigned to the child acount.
+     * 
+     * @param string $email Email address 
+     * @return boolean
+     */
+    public function setChildAccountByEmail($email)
     {
-        $this->headers[] = sprintf('%s: %s', $name, $value);
-        return $this;
+        
+        $this->clearChildCredentials();
+        $this->childAccountEmail = $email;
+        
+        return true;
+        
     }
-
+    
     /**
-     * Set a BasicAuthe style authorisation header
+     * Sets the authentication context to a child account by the creator
+     * reference assigned to the child acount.
+     * 
+     * @param string $creatorRef Creator reference id
+     * @return boolean
      */
-    protected function setBasicAuthHeader ($username = '', $password = '')
+    public function setChildAccountByCreatorRef($creatorRef)
     {
-        $hash = base64_encode(sprintf('%s:%s', $username, $password));
-        $this->setHeader('Authorization', "Basic {$hash}");
+        
+        $this->clearChildCredentials();
+        $this->childAccountCreatorRef = $creatorRef;
+        
+        return true;
+        
     }
-
+    
     /**
-     * Convert a passed childAccountOptionsHeader into HTTP Headers
+     * Sets the authentication context to a child account by the account id
+     * assigned to the child acount.
+     * 
+     * @param string $id Account Id
+     * @return boolean
      */
-    protected function parseChildAccountOptions (array $childAccountOptions)
+    public function setChildAccountById($id)
     {
-        foreach ($childAccountOptions as $key => $value) {
-            if (isset(self::$allowedChildAccountOptions[$key])) {
-                $this->setHeader(self::$allowedChildAccountOptions[$key], $value);
-            } else {
-                $allowedValues = array_keys(self::$allowedChildAccountOptions);
-                throw new \RunTimeException(
-                    sprintf(
-                        "Unknown child account option header. Allowed options are %s.",
-                        implode(', ', $allowedValues)
-                    )
-                );
-            }
-        }
+        
+        $this->clearChildCredentials();
+        $this->childAccountId = $id;
+        
+        return true;
+        
     }
-
+    
     /**
-     * Get a set of headers for the request
+     * Clears all existing credential properties
+     * @return boolean
      */
-    public function getHeaders ()
+    public function clearChildCredentials()
     {
-        return $this->headers;
+        
+        $this->childAccountEmail = null;    
+        $this->childAccountCreatorRef = null;
+        $this->childAccountId = null;
+        
+        return true;
+        
     }
-
+    
 }

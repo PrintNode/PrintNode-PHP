@@ -29,13 +29,49 @@ use PrintNode\Entity;
  */
 class Whoami extends Entity
 {
+    
+    /**
+     * Id
+     * @var string 
+     */
     protected $id;
+    
+    /**
+     * First Name
+     * @var string
+     */
     protected $firstname;
+    
+    /**
+     * Last Name
+     * @var string
+     */
     protected $lastname;
+    
+    /**
+     * Email Address
+     * @var string
+     */
     protected $email;
+    
+    /**
+     * Can create sub account flag
+     * @var bool
+     */
     protected $canCreateSubAccounts;
+    
+    /**
+     * The Email account of the account that created this account
+     * @var string
+     */
     protected $creatorEmail;
+    
+    /**
+     * The creation reference set when the accout 
+     * @var string
+     */
     protected $creatorRef;
+    
     protected $childAccounts;
     protected $credits;
     protected $numComputers;
@@ -46,4 +82,29 @@ class Whoami extends Entity
     protected $ApiKeys;
     protected $state;
     protected $permissions;
+    
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'id' => null,
+        'firstname' => null,
+        'lastname' => null,      
+        'email' => null,
+        'canCreateSubAccounts' => null,
+        'creatorEmail' => null,
+        'creatorRef' => null,
+        'childAccounts' => null,
+        'credits' => null,
+        'numComputers' => null,
+        'totalPrints' => null,
+        'versions' => null,
+        'connected' => null,
+        'Tags' => null,
+        'ApiKeys' => null,
+        'state' => null,
+        'permissions' => null, 
+    );
+    
 }

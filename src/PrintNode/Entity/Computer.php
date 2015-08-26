@@ -22,6 +22,7 @@ use PrintNode\Entity;
  */
 class Computer extends Entity
 {
+    
     protected $id;
     protected $name;
     protected $inet;
@@ -34,4 +35,43 @@ class Computer extends Entity
     protected $createTimestamp;
     protected $state;
 
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'id' => null,
+        'name' => null,
+        'inet' => null,
+        'inet6' => null,
+        'hostname' => null,
+        'version' => null,
+        'jre' => null,
+        'systemInfo' => null,
+        'acceptOfflinePrintJobs' => null,
+        'createTimestamp' => null,
+        'state' => null,
+    );
+    
+    public function viewPrinters($printerSet = null)
+    {
+        
+        
+        
+    }
+    
+    public function viewPrintJobs()
+    {
+        
+        
+        
+    }
+    
+    public function viewScales()
+    {
+        
+        
+        
+    }
+    
 }

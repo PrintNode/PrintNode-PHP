@@ -25,6 +25,7 @@ use PrintNode\Entity;
  */
 class Scale extends Entity
 {
+    
     protected $mass;
     protected $deviceName;
     protected $deviceNum;
@@ -39,4 +40,26 @@ class Scale extends Entity
     protected $product;
     protected $vendorId;
     protected $productId;
+    
+    /**
+     * Response map for converting this entity back and forth from JSON objects
+     * @var array
+     */
+    public static $responseMap = array(
+        'mass' => null,
+        'deviceName' => null,
+        'deviceNum' => null,
+        'port' => null,
+        'count' => null,
+        'measurement' => null,
+        'clientReportedCreateTimestamp' => null,
+        'ntpOffset' => null,
+        'ageOfData' => null,
+        'computerId' => null,
+        'vendor' => null,
+        'product' => null,
+        'vendorId' => null,
+        'productId' => null,
+    );
+    
 }
