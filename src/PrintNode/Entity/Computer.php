@@ -23,16 +23,70 @@ use PrintNode\Entity;
 class Computer extends Entity
 {
     
+    /**
+     * Computer Id
+     * @var int 
+     */
     protected $id;
+    
+    /**
+     * Computer Name
+     * @var string
+     */
     protected $name;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $inet;
+        
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $inet6;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */    
     protected $hostname;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $version;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $jre;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $systemInfo;
+    
+    /**
+     * Reserved
+     * @var mixed
+     */
     protected $acceptOfflinePrintJobs;
+    
+    /**
+     * The time and date the computer was first registered with PrintNode
+     * @var mixed
+     */
     protected $createTimestamp;
+    
+    /**
+     * Current state of the computer
+     * @var mixed
+     */
     protected $state;
 
     /**
@@ -53,24 +107,30 @@ class Computer extends Entity
         'state' => null,
     );
     
-    public function viewPrinters($printerSet = null)
+    /**
+     * Returns an array of the printers present on this computer
+     * 
+     * @param int $offset 
+     * @param int $limit
+     * @param mixed $printerSet
+     * @return array
+     */
+    public function viewPrinters($offset = 0, $limit = 500, $printerSet = null)
     {
         
-        
+        return $this->client->viewPrinters($offset, $limit, $printerSet, $this->id);
         
     }
     
-    public function viewPrintJobs()
+    /**
+     * 
+     * @param type $deviceName
+     * @param type $deviceNumber
+     */
+    public function viewScales($deviceName = null, $deviceNumber = null)
     {
         
-        
-        
-    }
-    
-    public function viewScales()
-    {
-        
-        
+        return $this->client->viewScales($this->id, $deviceName, $deviceNumber);
         
     }
     

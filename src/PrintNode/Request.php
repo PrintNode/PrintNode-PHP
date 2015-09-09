@@ -6,12 +6,6 @@ class Request
 {
     
     /**
-     * The host to make this request to
-     * @var string
-     */
-    private static $apiHost = 'api.printnode.com';
-    
-    /**
      * Reference to a credentials object
      * @var Credentials
      */
@@ -28,6 +22,12 @@ class Request
      * @var string
      */
     private $method;
+    
+    /**
+     * The host to make this request to
+     * @var string
+     */
+    public $apiHost = 'api.printnode.com';
     
     /**
      * If set, requests that the responding JSON should be formatted for human
@@ -130,8 +130,13 @@ class Request
             $this->dontLog = (bool)$client->dontLog;
         }
         
+        if (is_array($client->additionalHeaders)
+            && (sizeof($client->additionalHeaders) > 0)) {
+            $this->additionalHeaders = $client->additionalHeaders;
+        }
+        
         if ($client->apiHost) {
-            self::$apiHost = $client->apiHost;
+            $this->apiHost = $client->apiHost;
         }
         
         return true;
@@ -150,7 +155,7 @@ class Request
             throw new Exception\RuntimeException('Service not set');
         }
         
-        return 'https://' . self::$apiHost . '/' . $this->service;
+        return 'https://' . $this->apiHost . '/' . $this->service;
         
     }
     
@@ -246,7 +251,7 @@ class Request
      */
     public function process()
     {
-                
+        
         $response = $this->curlExec($this->method, $this->getUrl(), $this->getHeaders());
         
         return new Response($response);
@@ -265,16 +270,8 @@ class Request
     protected function curlExec ($method, $url, $headers)
     {
 
-        $curlHandle = curl_init();
-
-        curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
-        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
-        curl_setopt($curlHandle, CURLOPT_HEADER, true);
-        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($curlHandle, CURLOPT_TIMEOUT, 30);
-        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, false);
+        $curlHandle = $this->getCurlHandle();
+        
         curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curlHandle, CURLOPT_URL, $url);        
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->getHeaders());
@@ -300,4 +297,28 @@ class Request
         return $response;
                 
     }
+    
+    /**
+     * Returns an instance of the curl handle 
+     * 
+     * @return mixed
+     */
+    protected function getCurlHandle()
+    {
+        
+        $curlHandle = curl_init();
+
+        curl_setopt($curlHandle, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlHandle, CURLOPT_VERBOSE, false);
+        curl_setopt($curlHandle, CURLOPT_HEADER, true);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($curlHandle, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, false);
+        
+        return $curlHandle;
+        
+    }
+    
 }

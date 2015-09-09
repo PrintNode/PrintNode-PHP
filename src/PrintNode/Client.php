@@ -45,18 +45,6 @@ class Client
     public $apiHost;
     
     /**
-     * Request logging callback
-     * @var function
-     */
-    public $requestLogMethod;
-    
-    /**
-     * Response logging callback
-     * @var function
-     */
-    public $responseLogMethod;
-    
-    /**
      * Stores the last request object processed
      * @var \PrintNode\Response
      */

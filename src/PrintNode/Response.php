@@ -107,10 +107,12 @@ class Response
             $this->processBodyJson($this->body);
         }
         
-        if (($this->httpStatusCode < 200)
-            || ($this->httpStatusCode >= 300)) {
+        if ($this->httpStatusCode == 429) {
             
-            pndebug($responseString, true);
+            throw new Exception\RateLimitException($this->bodyJson->message);
+            
+        } else if (($this->httpStatusCode < 200)
+            || ($this->httpStatusCode >= 300)) {
             
             throw new Exception\HTTPException($this->httpStatusCode, $this->bodyJson->message);
             
@@ -119,7 +121,7 @@ class Response
         return true;
         
     }
-    
+        
     /**
      * Process the response body into a JSON object and places it into the 
      * bodyJson property

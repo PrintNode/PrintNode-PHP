@@ -15,6 +15,7 @@ use PrintNode\Entity;
  */
 class Account extends Entity
 {
+    
     /**
      * Account Id
      * @var int 

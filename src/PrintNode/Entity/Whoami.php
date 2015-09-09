@@ -67,20 +67,69 @@ class Whoami extends Entity
     protected $creatorEmail;
     
     /**
-     * The creation reference set when the accout 
+     * The creation reference set when the account was created
      * @var string
      */
     protected $creatorRef;
     
+    /**
+     * Any child accounts present on this account
+     * @var array
+     */
     protected $childAccounts;
+    
+    /**
+     * The number of print credits remaining on this account
+     * @var string
+     */
     protected $credits;
+    
+    /**
+     * The number of computers active on this account
+     * @var string
+     */
     protected $numComputers;
+    
+    /**
+     * Total number of prints made on this account
+     * @var int
+     */
     protected $totalPrints;
+    
+    /**
+     * Array of versions set on this account
+     * @var array
+     */
     protected $versions;
+    
+    /**
+     * Array of computer Ids signed in on this account
+     * @var array
+     */
     protected $connected;
+    
+    /**
+     * Array of tags set on this account
+     * @var array
+     */
     protected $Tags;
+    
+    /**
+     * Array of all the api keys set on this account
+     * @var array 
+     */
     protected $ApiKeys;
+    
+    /**
+     * 
+     * @var array 
+     */
     protected $state;
+    
+    /**
+     * Array of the permissions set on this account
+     * @var array 
+     */
     protected $permissions;
     
     /**

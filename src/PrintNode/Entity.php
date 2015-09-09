@@ -121,4 +121,15 @@ abstract class Entity implements \JsonSerializable
         
     }
     
+    /**
+     * Implements the toString magic method.
+     * 
+     * @return string
+     */
+    public function __toString() {
+        
+        return print_r(\json_decode(\json_encode($this->jsonSerialize()), true), true);
+        
+    }
+    
 }

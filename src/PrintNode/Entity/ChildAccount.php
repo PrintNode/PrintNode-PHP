@@ -14,10 +14,22 @@ use PrintNode\Entity;
 class ChildAccount extends Entity
 {
     
-    protected $Account;
+    /**
+     * A printnode Account object
+     * @var \PrintNode\Entity\Account
+     */
+    public $Account;
     
+    /**
+     * An array of API keys
+     * @var array
+     */
     public $ApiKeys;
     
+    /**
+     * An array of tags
+     * @var array
+     */
     public $Tags;
     
     /**
@@ -29,12 +41,5 @@ class ChildAccount extends Entity
         'ApiKeys' => null,
         'Tags' => null,
     );
-    
-    public function addAccount(\PrintNode\Entity\Account $Account)
-    {
-        
-        $this->Account = $Account;
-        
-    }
     
 }
