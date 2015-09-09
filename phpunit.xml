@@ -1,4 +1,12 @@
 <phpunit bootstrap="./phpunit-bootstrap.php"
          colors="true"
          stopOnFailure="false">
+  <php>
+    <env name="DOMAIN" value="" />
+  </php>
+  <testsuites>
+    <testsuite name="PrintNode">
+      <directory>Tests</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
