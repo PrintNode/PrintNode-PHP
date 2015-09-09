@@ -31,6 +31,13 @@ class Client
     public $dontLog = false;
     
     /**
+     * Stores any additional arbitary headers that should be sent with the 
+     * request
+     * @var array
+     */
+    public $additionalHeaders = array();
+    
+    /**
      * The API endpoint for requests made through the client can be overridden
      * here
      * @var string
@@ -48,6 +55,18 @@ class Client
      * @var function
      */
     public $responseLogMethod;
+    
+    /**
+     * Stores the last request object processed
+     * @var \PrintNode\Response
+     */
+    public $lastRequest;
+    
+    /**
+     * Stores the last response object processed
+     * @var \PrintNode\Response
+     */
+    public $lastResponse;
     
     /**
      * Class Constructor
@@ -81,6 +100,7 @@ class Client
         }
 
         return $this->$propertyName;
+        
     }
     
     /**
@@ -92,32 +112,24 @@ class Client
     public function viewWhoAmI()
     {
      
-        $request = new Request($this->credentials, 'whoami', 'GET');
+        $this->lastResponse = $this->makeRequest('whoami', 'GET');
         
-        $response = $request->process();
-        
-        return $this->mapJsonToEntity($response->bodyJson, '\PrintNode\Entity\Whoami');
+        return $this->mapJsonToEntity($this->lastResponse->bodyJson, '\PrintNode\Entity\Whoami');
         
     }
 
     /**
      * Makes a credits request to the PrintNode API, returning the credit 
-     * balance for the active account.
+     * balance for the active account as a string
      * 
      * @return string
      */
     public function viewCredits()
     {
      
-        $request = new Request($this->credentials, 'credits', 'GET');
+        $this->lastResponse = $this->makeRequest('credits', 'GET');
         
-        $response = $request->process();
-        
-        if ($response->httpStatusCode == '200') {
-            return $response->body;
-        }
-        
-        return false;
+        return $this->lastResponse->bodyJson;
         
     }
 
@@ -125,14 +137,23 @@ class Client
      * Makes a computers request to the PrintNode API, returning an array
      * of all the registered computers on the active account.
      * 
-     * @param int $offset The start index for the records the API should return
-     * @param int $limit The number of records the API should return
-     * @return bool|array
+     * @param int $offset (Optional) The start index for the records the API should return
+     * @param int $limit (Optional) The number of records the API should return
+     * @param string|array $computerSet (Optional) 'set' string or array of computer ids to which the response should be limited
+     * @return \PrintNode\Entity\Computer[]
      */
-    public function viewComputers($offset = 0, $limit = 500)
+    public function viewComputers($offset = 0, $limit = 500, $computerSet = null)
     {
     
-        return $this->requestMapped('computers', 'GET', '\PrintNode\Entity\Computer');
+        if (isset($computerSet)) {
+            $url = sprintf('computers/%s', $this->setImplode($computerSet));
+        } else {
+            $url = 'computers';
+        }
+        
+        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
+        
+        return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\Computer');
         
     }
 
@@ -149,11 +170,11 @@ class Client
      * Both arguments can be combined to return only certain printers on certain
      * computers
      * 
-     * @param int $offset The start index for the records the API should return
-     * @param int $limit
-     * @param string|array $printerSet
-     * @param string|array $computerSet
-     * @return bool|array
+     * @param int $offset (Optional) The start index for the records the API should return
+     * @param int $limit (Optional) The number of records the API should return
+     * @param string|array $printerSet (Optional) 'set' string or array of printer ids to which the response should be limited
+     * @param string|array $computerSet (Optional) 'set' string or array of computer ids to which the response should be limited
+     * @return \PrintNode\Entity\Printer[]
      */
     public function viewPrinters($offset = 0, $limit = 500, $printerSet = null, $computerSet = null)
     {
@@ -170,7 +191,7 @@ class Client
         
         $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
         
-        return $this->requestMapped($url, 'GET', '\PrintNode\Entity\Printer');
+        return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\Printer');
         
     }
 
@@ -187,11 +208,11 @@ class Client
      * Both arguments can be combined to return only certain print jobs on 
      * certain printers
      * 
-     * @param int $offset The start index for the records the API should return
-     * @param int $limit
-     * @param string|array $printJobSet
-     * @param string|array $printerSet
-     * @return bool|array
+     * @param int $offset (Optional) The start index for the records the API should return
+     * @param int $limit (Optional) The number of records the API should return
+     * @param string|array $printJobSet (Optional) 'set' string or array of print job ids to which the response should be limited
+     * @param string|array $printerSet (Optional) 'set' string or array of printer ids to which the response should be limited
+     * @return \PrintNode\Entity\PrintJob[]
      */
     public function viewPrintJobs($offset = 0, $limit = 500, $printJobSet = null, $printerSet = null)
     {
@@ -208,25 +229,25 @@ class Client
         
         $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
         
-        return $this->requestMapped($url, 'GET', '\PrintNode\Entity\PrintJob');
+        return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\PrintJob');
         
     }
     
     /**
-     * Makes a printjobStatus request to the PrintNode API, returning an array
+     * Makes a printjobState request to the PrintNode API, returning an array
      * of all the printjobs that have been processed on the active account.
      * 
      * If a 'set' string or array of print job ids is passed to the third 
      * argument, the returned array will be filtered to just those print jobs.
      * 
-     * Returned is an array of statuses in an array keyed by the print job id.
+     * Returned is an array of states in an array keyed by the print job id.
      * 
-     * @param int $offset
-     * @param int $limit
-     * @param string|array $printJobSet
+     * @param int $offset (Optional) The start index for the records the API should return
+     * @param int $limit (Optional) The number of records the API should return
+     * @param string|array $printJobSet (Optional) 'set' string or array of print job ids to which the response should be limited
      * @return array
      */
-    public function viewPrintJobStatus($offset = 0, $limit = 500, $printJobSet = null)
+    public function viewPrintJobState($offset = 0, $limit = 500, $printJobSet = null)
     {
         
         $url = 'printjobs/states';
@@ -237,94 +258,24 @@ class Client
         
         $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
         
-        $response = $this->request($url, 'GET');
+        $this->lastResponse = $this->makeRequest($url, 'GET');
         
-        if (!is_array($response->bodyJson)
-            || (sizeof($response->bodyJson) == 0)) {
+        if (!is_array($this->lastResponse->bodyJson)
+            || (sizeof($this->lastResponse->bodyJson) == 0)) {
             return true;
         }
         
-        $statuses = array();
+        $states = array();
         
-        foreach ($response->bodyJson as $statusJson) {
+        foreach ($this->lastResponse->bodyJson as $stateJson) {
             
-            $jobStatus = $this->mapBodyJsonToEntityArray($statusJson, '\PrintNode\Entity\PrintJobState');
+            $jobState = $this->mapBodyJsonToEntityArray($stateJson, '\PrintNode\Entity\PrintJobState');
             
-            $statuses[$jobStatus[0]->printJobId] = $jobStatus;
-            
-        }
-        
-        return $statuses;
-        
-    }
-    
-    /**
-     * 
-     * 
-     * @param int $offset
-     * @param int $limit
-     * @param string|array $downloadSet
-     * @return array
-     */    
-    public function viewApiKey($apiKey)
-    {
-        
-        $url = sprintf('/account/apikey/%s', $apiKey);
-        
-        $request = new Request($this->credentials, $url, 'GET');
-        
-        $response = $request->process();
-        
-        //pndebug($response);
-        
-        /*
-        $clientDownloads = array();
-        
-        foreach ($response->bodyJson as $clientDownloadJson) {
-            
-            $clientDownload = $this->mapJsonToEntity($clientDownloadJson, '\PrintNode\Entity\ClientDownload');
-        
-            $clientDownloads[$clientDownload->id] = $clientDownload;
+            $states[$jobState[0]->printJobId] = $jobState;
             
         }
         
-        return $clientDownloads;
-        */
-        
-    }
-    
-    /**
-     * 
-     * 
-     * @param int $offset
-     * @param int $limit
-     * @param string|array $downloadSet
-     * @return array
-     */    
-    public function deleteApiKey($apiKey)
-    {
-        
-        $url = sprintf('/account/apikey/%s', $apiKey);
-        
-        $request = new Request($this->credentials, $url, 'GET');
-        
-        $response = $request->process();
-        
-        //pndebug($response);
-        
-        /*
-        $clientDownloads = array();
-        
-        foreach ($response->bodyJson as $clientDownloadJson) {
-            
-            $clientDownload = $this->mapJsonToEntity($clientDownloadJson, '\PrintNode\Entity\ClientDownload');
-        
-            $clientDownloads[$clientDownload->id] = $clientDownload;
-            
-        }
-        
-        return $clientDownloads;
-        */
+        return $states;
         
     }
     
@@ -337,9 +288,9 @@ class Client
      * 
      * Returned is an array of statuses in an array keyed by the print job id.
      * 
-     * @param string $computerId
-     * @param string $deviceName
-     * @param string $deviceNumber
+     * @param string $computerId The id of the computer on which to view scales
+     * @param string $deviceName (Optional) The name of the scale device
+     * @param string $deviceNumber (Optional) The id of the scale device
      * @return array
      */
     public function viewScales($computerId, $deviceName = null, $deviceNumber = null)
@@ -356,8 +307,8 @@ class Client
             $url.= sprintf('/%s', $deviceName);
             
         }
-        
-        return $this->requestMapped($url, 'GET', '\PrintNode\Entity\Scale', 'deviceNum');
+                
+        return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\Scale', 'deviceNum');
         
     }
     
@@ -371,9 +322,9 @@ class Client
      * 
      * Returned is an array of downloads in an array keyed by the download id.
      * 
-     * @param int $offset
-     * @param int $limit
-     * @param string|array $downloadSet
+     * @param int $offset (Optional) The start index for the records the API should return
+     * @param int $limit (Optional) The number of records the API should return
+     * @param string|array (Optional) $downloadSet 'set' string or array of download ids to which the response should be limited
      * @return array
      */    
     public function viewClientDownloads($offset = 0, $limit = 1, $downloadSet = null)
@@ -387,16 +338,16 @@ class Client
         
         $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
         
-        return $this->requestMapped($url, 'GET', '\PrintNode\Entity\ClientDownload');
+        return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\ClientDownload');
         
     }
     
     /**
      * Appends the offset and limit arguments to a given api endpoint url
      * 
-     * @param string $url
-     * @param int $offset
-     * @param int $limit
+     * @param string $url (Optional) The url to which any limits or offsets will be applied
+     * @param int $offset (Optional) The offset to apply to the url
+     * @param int $limit (Optional) The limit to apply to the url
      * @return string
      * @throws \PrintNode\Exception\InvalidArgumentException
      */
@@ -424,38 +375,42 @@ class Client
     }
     
     /**
-     * Sends a printJob to the PrintNode API.
+     * Creates a new printJob by making a POST to the PrintNode API, returning
+     * the new print job id, or optionally a printjob object is argument 2 is
+     * populated
      * 
-     * @param \PrintNode\Entity\PrintJob $printJob
-     * @param bool $returnObject If set to true, returns the full printjob data
+     * @param \PrintNode\Entity\PrintJob $printJob A populated printjob object
+     * @param bool $returnObject (Optional) If set to true, returns the full printjob data by making a second request
      * @return |PrintNode\Entity\PrintJob|string
      */
     public function createPrintJob($printJob, $returnObject = false)
     {
         
-        $response = $this->request('printjobs', 'POST', \json_encode($printJob));
+        $this->lastResponse = $this->makeRequest('printjobs', 'POST', \json_encode($printJob));
         
         if ($returnObject) {
-            return $this->viewPrintJobs(0, 1, $response->body);
+            return $this->viewPrintJobs(0, 1, $this->lastResponse->body);
         }
         
-        return $response->body;
+        return $this->lastResponse->body;
         
     }
     
     /**
-     * Creates a child account
+     * Creates a new child account by making a POST to the PrintNode API, 
+     * returning a ChildAccount object.
      *
-     * @param \PrintNode\Entity\Account $account
-     * @param array $tags
-     * @param array $apiKeys
+     * @param \PrintNode\Entity\Account $account A populated account object
+     * @param type $apiKeys (Optional) An array of API keys that should be created on the new account
+     * @param type $tags (Optional) An array of Tags that should be created on the new account
+     * @return \PrintNode\Entity\ChildAccount
      */
     public function createChildAccount(\PrintNode\Entity\Account $account, $apiKeys = null, $tags = null)
     {
     
         $newChildAccount = new \PrintNode\Entity\ChildAccount($this);
         
-        $newChildAccount->addAccount($account);
+        $newChildAccount->Account = $account;
         
         if (is_array($apiKeys)) {
             foreach ($apiKeys as $apiKey) {
@@ -469,26 +424,47 @@ class Client
             }
         }
         
-        $response = $this->request('account', 'POST', \json_encode($newChildAccount));
+        $this->lastResponse = $this->makeRequest('account', 'POST', \json_encode($newChildAccount));
         
-        $newChildAccount->Account->mapValuesFromJson($response->bodyJson->Account);
+        $newChildAccount->Account->mapValuesFromJson($this->lastResponse->bodyJson->Account);
         
         $newChildAccount->ApiKeys = array();
         $newChildAccount->Tags = array();
         
-        if ($response->bodyJson->ApiKeys instanceof \stdClass) {
-            foreach ($response->bodyJson->ApiKeys as $apiDescription => $apiKey) {
+        if ($this->lastResponse->bodyJson->ApiKeys instanceof \stdClass) {
+            foreach ($this->lastResponse->bodyJson->ApiKeys as $apiDescription => $apiKey) {
                 $newChildAccount->ApiKeys[$apiDescription] = $apiKey;
             }
         }
         
-        if ($response->bodyJson->Tags instanceof \stdClass) {
-            foreach ($response->bodyJson->Tags as $tagDescription => $tag) {
+        if ($this->lastResponse->bodyJson->Tags instanceof \stdClass) {
+            foreach ($this->lastResponse->bodyJson->Tags as $tagDescription => $tag) {
                 $newChildAccount->Tags[$tagDescription] = $tag;
             }
         }
         
         return $newChildAccount;
+        
+    }
+    
+    /**
+     * Modifies the currently active child account by making a PATCH request to 
+     * the PrintNode API, returning a Whoami object with the modified
+     * account details
+     * 
+     * @param \PrintNode\Entity\Account $account An account object containing the fields to be modified
+     * @return \PrintNode\Entity\Whoami 
+     */
+    public function modifyAccount($account)
+    {
+        
+        $this->lastResponse = $this->makeRequest('account', 'PATCH', \json_encode($account));
+        
+        $whoAmI = new \PrintNode\Entity\Whoami($this);
+        
+        $whoAmI->mapValuesFromJson($this->lastResponse->bodyJson);
+        
+        return $whoAmI;
         
     }
     
@@ -501,9 +477,9 @@ class Client
     public function deleteChildAccount()
     {
         
-        $response = $this->request('account', 'DELETE');
+        $this->lastResponse = $this->makeRequest('account', 'DELETE');
         
-        return $response->bodyJson;
+        return $this->lastResponse->bodyJson;
         
     }
     
@@ -512,16 +488,16 @@ class Client
      * specified in argument 1 with the value specified in argument 2 on the 
      * active account.
      * 
-     * @param string $tagName The tag name to create
-     * @param string $tagValue The value of the tag to create
+     * @param string $tagName The name of the tag to be created
+     * @param string $tagValue The value of the tag to be created
      * @return string
      */
     public function createTag($tagName, $tagValue)
     {
         
-        $response = $this->request('account/tag/' . $tagName, 'POST', \json_encode($tagValue));
+        $this->lastResponse = $this->makeRequest('account/tag/' . $tagName, 'POST', \json_encode($tagValue));
         
-        return $response->bodyJson;
+        return $this->lastResponse->bodyJson;
         
     }
     
@@ -529,15 +505,15 @@ class Client
      * Makes a create tag request to the PrintNode API, returning the tag 
      * specified in the first argument on the active account.
      * 
-     * @param string $tagName
+     * @param string $tagName The name of the tag to view
      * @return string
      */
     public function viewTag($tagName)
     {
         
-        $response = $this->request('account/tag/' . $tagName, 'GET');
+        $this->lastResponse = $this->makeRequest('account/tag/' . $tagName, 'GET');
         
-        return $response->bodyJson;
+        return $this->lastResponse->bodyJson;
         
     }
     
@@ -545,15 +521,69 @@ class Client
      * Makes a delete tag request to the PrintNode API, removing the tag 
      * specified in the first argument on the active account.
      * 
-     * @param string $tagName
+     * @param string $tagName The name of the tag to be deleted
      * @return string
      */
     public function deleteTag($tagName)
     {
         
-        $response = $this->request('account/tag/' . $tagName, 'DELETE');
+        $this->lastResponse = $this->makeRequest('account/tag/' . $tagName, 'DELETE');
         
-        return $response->bodyJson;
+        return $this->lastResponse->bodyJson;
+        
+    }
+    
+    /**
+     * Makes a view apikey request to the PrintNode API, returning the api key
+     * string.
+     * 
+     * @param string $apiKeyName The label of the API Key to be created
+     * @return bool
+     */    
+    public function createApiKey($apiKeyLabel)
+    {
+        
+        $url = sprintf('/account/apikey/%s', $apiKeyLabel);
+        
+        $this->lastResponse = $this->makeRequest($url, 'POST');
+        
+        return $this->lastResponse->bodyJson;
+        
+    }
+    
+    /**
+     * Makes a view apikey request to the PrintNode API, returning the api key
+     * string.
+     * 
+     * @param string $apiKeyName The label of the API Key to be returned
+     * @return string
+     */    
+    public function viewApiKey($apiKeyLabel)
+    {
+        
+        $url = sprintf('/account/apikey/%s', $apiKeyLabel);
+        
+        $this->lastResponse = $this->makeRequest($url, 'GET');
+        
+        return $this->lastResponse->bodyJson;
+        
+    }
+    
+    /**
+     * Makes a delete apikey request to the PrintNode API, returning true
+     * if the key was successfully deleted.
+     * 
+     * @param string $apiKeyName The label of the API Key to be deleted
+     * @return bool
+     */
+    public function deleteApiKey($apiKeyLabel)
+    {
+        
+        $url = sprintf('/account/apikey/%s', $apiKeyLabel);
+        
+        $this->lastResponse = $this->makeRequest($url, 'DELETE');
+                
+        return (bool)$this->lastResponse;
         
     }
     
@@ -582,18 +612,18 @@ class Client
      * @param string $method The HTTP request method to use
      * @return Response
      */
-    public function request($url, $method, $content = null)
+    public function makeRequest($url, $method, $content = null)
     {
         
-        $request = new Request($this->credentials, $url, $method);
+        $this->lastRequest = new Request($this->credentials, $url, $method);
         
-        $request->setPropertiesFromClient($this);
+        $this->lastRequest->setPropertiesFromClient($this);
         
         if ($content !== null) {
-            $request->body = $content;
+            $this->lastRequest->body = $content;
         }
         
-        return $request->process();
+        return $this->lastRequest->process();
         
     }
     
@@ -607,23 +637,23 @@ class Client
      * @param string $keyname The entity property to use as the return array key
      * @return mixed
      */
-    public function requestMapped($url, $method, $responseEntity = null, $keyname = 'id')
+    public function makeRequestMapped($url, $method, $responseEntity = null, $keyname = 'id')
     {
         
-        $response = $this->request($url, $method);
+        $this->lastResponse = $this->makeRequest($url, $method);
         
-        if (!is_array($response->bodyJson)
-            || (sizeof($response->bodyJson) == 0)) {
-            return true;
+        if (!is_array($this->lastResponse->bodyJson)
+            || (sizeof($this->lastResponse->bodyJson) == 0)) {
+            return;
         }
         
         if ($responseEntity === null ) {
             
-            return $response->bodyJson;
+            return $this->lastResponse->bodyJson;
             
         } else {
             
-            return $this->mapBodyJsonToEntityArray($response->bodyJson, $responseEntity, $keyname);
+            return $this->mapBodyJsonToEntityArray($this->lastResponse->bodyJson, $responseEntity, $keyname);
             
         }
         
