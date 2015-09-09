@@ -23,8 +23,6 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->assertObjectHasAttribute('prettyJSON', $client);
         $this->assertObjectHasAttribute('dontLog', $client);
         $this->assertObjectHasAttribute('apiHost', $client);
-        $this->assertObjectHasAttribute('requestLogMethod', $client);
-        $this->assertObjectHasAttribute('responseLogMethod', $client);
         $this->assertObjectHasAttribute('lastResponse', $client);
         
         $this->assertTrue(\method_exists($client, 'viewWhoAmI'));
