@@ -29,7 +29,7 @@ class Scale extends Entity
     protected $port;
     protected $count;
     protected $measurement;
-    protected $clientReprotedCreateTimestamp;
+    protected $clientReportedCreateTimestamp;
     protected $ntpOffset;
     protected $ageOfData;
     protected $computerId;
