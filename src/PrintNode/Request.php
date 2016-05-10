@@ -489,7 +489,7 @@ class Request
      * @param string $computerId id of computer to find scales
      * @return Entity[]
      * */
-    public function getScales(string $computerId)
+    public function getScales($computerId)
     {
         $endPointUrl = $this->apiurl."/computer/";
         $endPointUrl.= $computerId;
