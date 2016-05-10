@@ -13,7 +13,7 @@ namespace PrintNode;
  * @property-read string $port
  * @property-read int $count
  * @property-read int[string] $measurement
- * @property-read DateTime $clientReportedCreateTimestamp
+ * @property-read \DateTime $clientReportedCreateTimestamp
  * @property-read string $ntpOffset
  * @property-read int $ageOfData
  * @property-read int $computerId
