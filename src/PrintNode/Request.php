@@ -522,7 +522,7 @@ class Request
         $arguments = func_get_args();
 
         if (count($arguments) > 2) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Too many arguments given to getPrintersByComputers.'
                 )
@@ -570,7 +570,7 @@ class Request
             $arguments = array_shift($arguments);
 
             if (!is_string($arguments)) {
-                throw new InvalidArgumentException(
+                throw new \InvalidArgumentException(
                     sprintf(
                         'Invalid argument type passed to %s. Expecting a string got %s',
                         $methodName,
@@ -614,7 +614,7 @@ class Request
     public function patch(Entity $entity)
     {
         if (!($entity instanceof Entity)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Invalid argument type passed to patch. Expecting Entity got %s',
                     gettype($entity)
@@ -644,7 +644,7 @@ class Request
     public function post(Entity $entity)
     {
         if (!($entity instanceof Entity)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Invalid argument type passed to patch. Expecting Entity got %s',
                     gettype($entity)
@@ -677,7 +677,7 @@ class Request
         $entity = array_shift($arguments);
 
         if (!($entity instanceof Entity)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Invalid argument type passed to patch. Expecting Entity got %s',
                     gettype($entity)
