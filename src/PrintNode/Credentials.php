@@ -35,7 +35,7 @@ class Credentials implements CredentialsInterface
                 "ApiKey already set."
             );
 		}
-		$this->emailpassword = $email.': '.$password;
+		$this->emailPassword = $email.': '.$password;
 		return $this;
     }
 
