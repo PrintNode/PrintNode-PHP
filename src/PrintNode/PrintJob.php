@@ -16,6 +16,7 @@ namespace PrintNode;
  * @property-read int $filesize
  * @property-read DateTime $createTimestamp
  * @property-read string $state
+ * @property-read array $options
  */
 class PrintJob extends Entity
 {
@@ -29,6 +30,7 @@ class PrintJob extends Entity
     protected $createTimestamp;
     protected $state;
     protected $expireAt;
+    protected $options;
 
     public function foreignKeyEntityMap()
     {
