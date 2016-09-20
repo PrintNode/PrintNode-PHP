@@ -16,7 +16,7 @@ namespace PrintNode;
  * @property-read int $filesize
  * @property-read DateTime $createTimestamp
  * @property-read string $state
- * @property-read array $options
+ * @property array $options
  */
 class PrintJob extends Entity
 {
