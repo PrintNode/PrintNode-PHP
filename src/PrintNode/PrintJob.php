@@ -13,6 +13,7 @@ namespace PrintNode;
  * @property string $contentType
  * @property string $content
  * @property string $source
+ * @property string $options
  * @property-read int $filesize
  * @property-read DateTime $createTimestamp
  * @property-read string $state
@@ -29,6 +30,7 @@ class PrintJob extends Entity
     protected $createTimestamp;
     protected $state;
     protected $expireAt;
+    protected $options;
 
     public function foreignKeyEntityMap()
     {
