@@ -14,6 +14,9 @@ namespace PrintNode;
  * @property string $content
  * @property string $source
  * @property array $options
+ * @property int $expireAfter
+ * @property int $qty
+ * @property-read int $expireAt
  * @property-read int $filesize
  * @property-read DateTime $createTimestamp
  * @property-read string $state
@@ -26,11 +29,15 @@ class PrintJob extends Entity
     protected $contentType;
     protected $content;
     protected $source;
+    protected $options;
+    protected $expireAfter;
+    protected $qty;
+    protected $expireAt;
     protected $filesize;
     protected $createTimestamp;
     protected $state;
-    protected $expireAt;
-    protected $options;
+
+
 
     public function foreignKeyEntityMap()
     {
