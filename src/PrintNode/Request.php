@@ -39,6 +39,12 @@ class Request
      * @var mixed
      */
     private $limit = 10;
+    
+    /**
+     * Curl timeout in seconds.
+     * @var int
+     */
+    private $curltimeout = 30;
 
     /**
      * Map entity names to API URLs
@@ -184,7 +190,7 @@ class Request
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
 
-		curl_setopt($curlHandle, CURLOPT_TIMEOUT, 4);
+		curl_setopt($curlHandle, CURLOPT_TIMEOUT, (int)$this->curltimeout);
 
         curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, true);
 
@@ -331,6 +337,14 @@ class Request
         }
 
         $this->limit = $limit;
+    }
+
+    public function setCurlTimeout($timeout)
+    {
+        if (!ctype_digit($timeout) && !is_int($timeout)) {
+            throw new \InvalidArgumentException('timeout should be a number');
+        }
+        $this->curltimeout = $timeout;
     }
 
     /**
