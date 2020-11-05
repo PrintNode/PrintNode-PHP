@@ -118,7 +118,7 @@ class Request
      */
     private function makeEndPointUrls()
     {
-        $endPointUrls;
+        $endPointUrls = array();
         foreach ($this->methodNameEntityMap as $classes) {
             $endPointUrls[$classes] = $this->apiurl.$this->endPointUrls[$classes];
         }
@@ -245,6 +245,8 @@ class Request
     {
         $curlHandle = $this->curlInit();
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->childauth);
+
+        $endPointUrl = $this->applyOffsetLimit($endPointUrl);
 
         return $this->curlExec(
             $curlHandle,
