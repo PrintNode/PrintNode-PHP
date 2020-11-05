@@ -47,10 +47,16 @@ class Request
     private $curltimeout = 30;
 
     /**
+     * Custom headers
+     *
+     * @var array
+     */
+    private $headers = [];
+
+    /**
      * Map entity names to API URLs
      * @var string[]
      */
-
     private $endPointUrls = array(
         'PrintNode\Client' => '/download/clients',
         'PrintNode\Download' => '/download/client',
@@ -307,16 +313,18 @@ class Request
         $arguments = func_get_args();
 
         $httpMethod = array_shift($arguments);
-
         $data = array_shift($arguments);
-
         $endPointUrl = array_shift($arguments);
 
         $curlHandle = $this->curlInit();
 
         curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $httpMethod);
         curl_setopt($curlHandle, CURLOPT_POSTFIELDS, (string)$data);
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(array('Content-Type: application/json'), $this->childauth));
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array_merge(
+            array('Content-Type: application/json'),
+            $this->childauth,
+            $this->headers)
+        );
 
         return $this->curlExec(
             $curlHandle,
@@ -739,5 +747,9 @@ class Request
     public function setChildAccountByCreatorRef($creatorRef)
     {
         $this->childauth = array("X-Child-Account-By-CreatorRef: ".$creatorRef);
+    }
+
+    public function setHeaders($headers){
+        $this->headers = $headers;
     }
 }
