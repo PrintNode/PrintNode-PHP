@@ -358,7 +358,7 @@ class Client
             throw new \PrintNode\Exception\InvalidArgumentException('Limit must be greater than zero');
         }
 
-        return sprintf('%s?offset=%s&limit=%s', $url, $offset, $limit);
+        return sprintf('%s?after=%s&limit=%s', $url, $offset, $limit);
 
     }
 
