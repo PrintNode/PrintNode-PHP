@@ -107,30 +107,16 @@ class Client
     }
 
     /**
-     * Makes a credits request to the PrintNode API, returning the credit
-     * balance for the active account as a string
-     *
-     * @return string
-     */
-    public function viewCredits()
-    {
-
-        $this->lastResponse = $this->makeRequest('credits', 'GET');
-
-        return $this->lastResponse->bodyJson;
-
-    }
-
-    /**
      * Makes a computers request to the PrintNode API, returning an array
      * of all the registered computers on the active account.
      *
-     * @param int $offset (Optional) The start index for the records the API should return
      * @param int $limit (Optional) The number of records the API should return
+     * @param int $after (Optional) The computer id after (or before, depending on $dir) which to start returning records
+     * @param string $dir (Optional) "asc" for ascending or "desc" for descending, ordered by computer id
      * @param string|array $computerSet (Optional) 'set' string or array of computer ids to which the response should be limited
      * @return \PrintNode\Entity\Computer[]
      */
-    public function viewComputers($offset = 0, $limit = 500, $computerSet = null)
+    public function viewComputers($limit = null, $after = null, $dir = null, $computerSet = null)
     {
 
         if (isset($computerSet)) {
@@ -139,7 +125,7 @@ class Client
             $url = 'computers';
         }
 
-        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
+        $url = $this->applyPaginationToUrl($url, $limit, $after, $dir);
 
         return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\Computer');
 
@@ -158,13 +144,14 @@ class Client
      * Both arguments can be combined to return only certain printers on certain
      * computers
      *
-     * @param int $offset (Optional) The start index for the records the API should return
      * @param int $limit (Optional) The number of records the API should return
+     * @param int $after (Optional) The id after (or before, depending on $dir) which to start returning records
+     * @param string $dir (Optional) "asc" for ascending or "desc" for descending, ordered by computer id
      * @param string|array $printerSet (Optional) 'set' string or array of printer ids to which the response should be limited
      * @param string|array $computerSet (Optional) 'set' string or array of computer ids to which the response should be limited
      * @return \PrintNode\Entity\Printer[]
      */
-    public function viewPrinters($offset = 0, $limit = 500, $printerSet = null, $computerSet = null)
+    public function viewPrinters($limit = null, $after = null, $dir = null, $printerSet = null, $computerSet = null)
     {
 
         if (isset($computerSet) && isset($printerSet)){
@@ -177,7 +164,7 @@ class Client
             $url = 'printers';
         }
 
-        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
+        $url = $this->applyPaginationToUrl($url, $limit, $after, $dir);
 
         return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\Printer');
 
@@ -196,13 +183,14 @@ class Client
      * Both arguments can be combined to return only certain print jobs on
      * certain printers
      *
-     * @param int $offset (Optional) The start index for the records the API should return
      * @param int $limit (Optional) The number of records the API should return
+     * @param int $after (Optional) The after (or before, depending on $dir) which to start returning records
+     * @param string $dir (Optional) "asc" for ascending or "desc" for descending, ordered by computer id
      * @param string|array $printJobSet (Optional) 'set' string or array of print job ids to which the response should be limited
      * @param string|array $printerSet (Optional) 'set' string or array of printer ids to which the response should be limited
      * @return \PrintNode\Entity\PrintJob[]
      */
-    public function viewPrintJobs($offset = 0, $limit = 500, $printJobSet = null, $printerSet = null)
+    public function viewPrintJobs($limit = null, $after = null, $dir = null, $printJobSet = null, $printerSet = null)
     {
 
         $url = 'printjobs';
@@ -215,7 +203,7 @@ class Client
             $url = sprintf('printers/%s/printjobs', $this->setImplode($printerSet));
         }
 
-        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
+        $url = $this->applyPaginationToUrl($url, $limit, $after, $dir);
 
         return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\PrintJob');
 
@@ -230,12 +218,13 @@ class Client
      *
      * Returned is an array of states in an array keyed by the print job id.
      *
-     * @param int $offset (Optional) The start index for the records the API should return
      * @param int $limit (Optional) The number of records the API should return
+     * @param int $after (Optional) The id after (or before, depending on $dir) which to start returning records
+     * @param string $dir (Optional) "asc" for ascending or "desc" for descending, ordered by computer id
      * @param string|array $printJobSet (Optional) 'set' string or array of print job ids to which the response should be limited
      * @return array
      */
-    public function viewPrintJobState($offset = 0, $limit = 500, $printJobSet = null)
+    public function viewPrintJobState($limit = null, $after = null, $dir = null, $printJobSet = null)
     {
 
         $url = 'printjobs/states';
@@ -244,7 +233,7 @@ class Client
             $url = sprintf('printjobs/%s/states', $this->setImplode($printJobSet));
         }
 
-        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
+        $url = $this->applyPaginationToUrl($url, $limit, $after, $dir);
 
         $this->lastResponse = $this->makeRequest($url, 'GET');
 
@@ -310,55 +299,64 @@ class Client
      *
      * Returned is an array of downloads in an array keyed by the download id.
      *
-     * @param int $offset (Optional) The start index for the records the API should return
-     * @param int $limit (Optional) The number of records the API should return
      * @param string|array (Optional) $downloadSet 'set' string or array of download ids to which the response should be limited
      * @return array
      */
-    public function viewClientDownloads($offset = 0, $limit = 1, $downloadSet = null)
+    public function viewClientDownloads($downloadSet = null)
     {
-
         $url = 'download/clients';
 
         if (isset($downloadSet)) {
             $url = sprintf('download/clients/%s', $this->setImplode($downloadSet));
         }
 
-        $url = $this->applyLimitOffsetToUrl($url, $offset, $limit);
-
         return $this->makeRequestMapped($url, 'GET', '\PrintNode\Entity\ClientDownload');
 
     }
 
     /**
-     * Appends the offset and limit arguments to a given api endpoint url
+     * Appends limit argument to a given api endpoint url
      *
-     * @param string $url (Optional) The url to which any limits or offsets will be applied
-     * @param int $offset (Optional) The offset to apply to the url
+     * @param string $url (Optional) The url to which limit will be applied
      * @param int $limit (Optional) The limit to apply to the url
+     * @param int $after (Optional) The id after (or before, depending on $dir) which to start returning records
+     * @param string $dir (Optional) "asc" for ascending or "desc" for descending, ordered by computer id
      * @return string
      * @throws \PrintNode\Exception\InvalidArgumentException
      */
-    public function applyLimitOffsetToUrl($url, $offset, $limit)
+    public function applyPaginationToUrl($url, $limit, $after, $dir)
     {
+	$vars = Array();
+	if (!is_null($limit)) {
+	        if (!\is_numeric($limit)) {
+        	    throw new \PrintNode\Exception\InvalidArgumentException('Limit must be a number');
+	        }
 
-        if (!\is_numeric($offset)) {
-            throw new \PrintNode\Exception\InvalidArgumentException('Offset must be a number');
-        }
+        	if ($limit < 1) {
+	            throw new \PrintNode\Exception\InvalidArgumentException('Limit must be greater than zero');
+		}
+		$vars[] = sprintf("limit=%d", $limit);
+	}
 
-        if (!\is_numeric($limit)) {
-            throw new \PrintNode\Exception\InvalidArgumentException('Limit must be a number');
-        }
+	if (!is_null($after)) {
+	        if (!\is_numeric($after)) {
+	            throw new \PrintNode\Exception\InvalidArgumentException('After must be a number');
+		}
+		$vars[] = sprintf("after=%d", $limit);
+	}
 
-        if ($offset < 0) {
-            throw new \PrintNode\Exception\InvalidArgumentException('Offset cannot be negative');
-        }
+	if (!is_null($dir)) {
+		if (($dir !== "asc") && ($dir !== "desc")) {
+		    throw new \PrintNode\Exception\InvalidArgumentException('Dir must be "asc" or "desc"');
+		}
+		$vars[] = sprintf("dir=%s", $dir);
+	}
 
-        if ($limit < 1) {
-            throw new \PrintNode\Exception\InvalidArgumentException('Limit must be greater than zero');
-        }
-
-        return sprintf('%s?offset=%s&limit=%s', $url, $offset, $limit);
+	if (count($vars) > 0) {
+		return $url . "?" . implode("&", $vars);
+	} else {
+		return $url;
+	}
 
     }
 

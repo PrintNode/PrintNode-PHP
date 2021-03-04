@@ -110,15 +110,16 @@ class Computer extends Entity
     /**
      * Returns an array of the printers present on this computer
      * 
-     * @param int $offset 
      * @param int $limit
+     * @param int after
+     * @param string dir
      * @param mixed $printerSet
      * @return array
      */
-    public function viewPrinters($offset = 0, $limit = 500, $printerSet = null)
+    public function viewPrinters($limit = null, $after = null, $dir = null, $printerSet = null)
     {
         
-        return $this->client->viewPrinters($offset, $limit, $printerSet, $this->id);
+        return $this->client->viewPrinters($limit, $after, $dir, $printerSet, $this->id);
         
     }
     
