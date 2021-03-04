@@ -342,7 +342,7 @@ class Client
 	        if (!\is_numeric($after)) {
 	            throw new \PrintNode\Exception\InvalidArgumentException('After must be a number');
 		}
-		$vars[] = sprintf("after=%d", $limit);
+		$vars[] = sprintf("after=%d", $after);
 	}
 
 	if (!is_null($dir)) {
