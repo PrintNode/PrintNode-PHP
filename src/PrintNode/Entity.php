@@ -22,6 +22,18 @@ abstract class Entity implements \JsonSerializable
     }
     
     /**
+     * Check if property isset on entity
+     * @param mixed $propertyName
+     * @return boolean
+     */
+    public function __isset($propertyName)
+    {
+        
+        return isset($this->$propertyName);
+        
+    }
+    
+    /**
      * Set property on entity
      * @param mixed $propertyName
      * @param mixed $value
