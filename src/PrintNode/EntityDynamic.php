@@ -52,7 +52,8 @@ abstract class EntityDynamic extends Entity
      * 
      * @return string
      */
-    public function jsonSerialize(): mixed
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
     {
 
         $refClass = new \ReflectionClass($this);

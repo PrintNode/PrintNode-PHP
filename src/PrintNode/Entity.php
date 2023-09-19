@@ -102,9 +102,9 @@ abstract class Entity implements \JsonSerializable
      * 
      * @return string
      */
-    public function jsonSerialize(): mixed
+   #[\ReturnTypeWillChange]
+   public function jsonSerialize()
     {
-        
         $json = array();
         
         foreach (static::$responseMap as $responseKey => $responseMapType) {
