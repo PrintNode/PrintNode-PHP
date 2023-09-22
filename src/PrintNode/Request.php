@@ -240,7 +240,7 @@ class Request
             $headers[] = 'X-Dont-Log: 1';
         }
         
-        return \array_merge($headers, $this->getCredentialHeader());
+        return \array_merge($headers, $this->getCredentialHeader(), $this->additionalHeaders);
         
     }
     
