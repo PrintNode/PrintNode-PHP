@@ -32,7 +32,7 @@ https://github.com/PrintNode/PrintNode-PHP/archive/master.zip
 ### Install via composer
 
 ```bash
-composer require PrintNode/printnode-php:dev-master
+composer require printnode/printnode-php:dev-master
 ```
 
 ## Step 4: See examples how to use this library
